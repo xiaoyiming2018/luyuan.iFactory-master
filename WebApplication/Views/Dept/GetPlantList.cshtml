@@ -1,0 +1,18 @@
+﻿@{
+    Layout = null;
+    List<Advantech.IFactory.CommonLibrary.plant_info> objList = new List<Advantech.IFactory.CommonLibrary.plant_info>();
+    if (ViewBag.plantList != null)
+    {
+        objList = ViewBag.plantList;
+    }
+}
+<select class="select" id="plant_id" name="plant_id" onchange="getLineList()">
+    <option value=""></option>
+    @{
+    for (int i = 0; i < objList.Count; i++)
+    {
+    <option value="@objList[i].plant_id">@objList[i].plant_name_en</option>
+    }
+    }
+</select>
+

@@ -1,0 +1,17 @@
+﻿@{
+    Layout = null;
+    @model List<Advantech.IFactory.CommonLibrary.dept_info>
+}
+
+<div class="col-sm-9">
+    <select id="dept_id" name="dept_id" class="form-control" style="width:50%">
+        <option value=""></option>
+        @{
+            foreach (var items in Model)
+            {
+                <option value="@items.dept_id">@items.dept_name_en</option>
+            }
+        }
+    </select>
+</div>
+

@@ -1,0 +1,90 @@
+﻿@{
+    Layout = null;
+    @model List<System_tag_type>
+    @using AspNetCoreMvcPager;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript">
+        function deleteTiShi(url) {
+            if (confirm("确定删除数据吗?")) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>标签><span>系统标签类型列表</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" method="post" id="myfrom">
+            <div class="search">
+                @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Admin)
+                {
+                    <div class="button_div" style="margin-left:1%;width:10vw">
+                        <input type="button" value="新增" class="submit" onclick="window.location.href = '/TagType/Edit'" />
+                    </div>
+                }
+
+            </div>
+        </form>
+        <div class="space"></div>
+        <table cellspacing="1" cellpadding="1">
+            <tr class="color">
+                <td style=" width: 5%">序号</td>
+                <td style=" width: 25%">类别编码</td>
+                <td style=" width: 25%">类别名称</td>
+                <td style=" width: 25%">描述信息</td>
+                <td style=" width: 10%">编辑</td>
+                <td style=" width: 10%">删除</td>
+            </tr>
+            @{
+                int index = 1;
+                if (Model != null)
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@index</td>
+                            <td>@item.type_name_en</td>
+                            <td>@item.type_name_cn</td>
+                            <td>@item.type_description</td>
+                            <td>
+                                @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Admin)
+                                {
+                                    <a href="/TagType/Edit?name=@item.type_name_en&pageIndex=@ViewBag.model.pageIndex">编辑</a>
+                                }
+                                else
+                                {
+                                    <label>-</label>
+                                }
+                            </td>
+                            <td>
+                                @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Admin)
+                                {
+                                    <a href="#" onclick="deleteTiShi('/TagType/Delete?name=@item.type_name_en&pageIndex=@ViewBag.model.pageIndex')">删除</a>
+                                }
+                                else
+                                {
+                                    <label>-</label>
+                                }
+                            </td>
+                        </tr>
+                        index++;
+                    }
+                }
+            }
+        </table>
+        <div class="page-nav" id="pageIndex">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "TagType", "Index", true))</div>
+    </div>
+</body>
+</html>
+

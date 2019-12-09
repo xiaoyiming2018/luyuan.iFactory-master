@@ -1,0 +1,112 @@
+﻿@{
+    Layout = null;
+    @model IList<Advantech.IFactory.CommonLibrary.UserDept>
+    @using AspNetCoreMvcPager;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript">
+        function deleteTiShi(url) {
+            if (confirm("确认删除数据？")) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>用户管理><span>用户列表</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" action="/User" method="post" id="myfrom">
+            <div class="search">
+                @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                {
+                    <div class="button_div" style=" margin-left:1%;width:10vw"><input type="button" value="新增用户" class="submit" onclick="window.location.href = '/User/Edit'" /></div>
+                }
+
+            </div>
+        </form>
+        <div class="space"></div>
+        <table cellspacing="1" cellpadding="1">
+            <tr class="color">
+                <td style=" width:10%">编号</td>
+                <td style=" width:15%">用户名</td>
+                <td style=" width:15%">用户等级</td>
+                <td style=" width:15%">用户部门</td>
+                <td style=" width:15%">编辑</td>
+                <td style=" width:15%">删除</td>
+                <td style=" width:15%">重置密码</td>
+            </tr>
+            @{
+                int index = 1;
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@index</td>
+                        <td>@item.user_name</td>
+                        <td>
+                            @{
+                                if (item.user_level == (int)UserLevelEnum.Operator)
+                                {
+                                    <label>操作员</label>
+                                }
+                                else if (item.user_level == (int)UserLevelEnum.Manager)
+                                {
+                                    <label>生产管理员</label>
+                                }
+                                else if (item.user_level == (int)UserLevelEnum.Admin)
+                                {
+                                    <label>系统管理员</label>
+                                }
+                            }
+                        </td>
+                        <td>@item.dept_name_cn</td>
+                        <td>
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                            {
+                                <a href="/User/Edit?id=@item.id&&user_name=@item.user_name">Edit</a>
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+                        <td>
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                            {
+                                <a href="#" onclick="deleteTiShi('/User/Del?id=@item.id')">Del</a>
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+                        <td>
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                            {
+                                <a href="#" onclick="deleteTiShi('/User/Reset?user_name=@item.user_name')">Reset</a>
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+                    </tr>
+                    index++;
+                }
+
+            }
+        </table>
+        <div class="page-nav" id="pageIndex">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "User", "Index", true))</div>
+    </div>
+</body>
+</html>

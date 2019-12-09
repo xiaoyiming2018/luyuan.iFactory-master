@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link href="/grafana-UI-frame/loginSpecial/css/styles.css" rel="stylesheet" type="text/css" />
+    <link href="/grafana-UI-frame/loginSpecial/css/loaders.css" rel="stylesheet" type="text/css" />
+
+    <script src="/lib/jquery/dist/jquery.js"></script>
+    <script src="/lib/jquery-ui/jquery-ui.min.js"></script>
+    <script src="/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script type="text/javascript" src='/grafana-UI-frame/loginSpecial/js/stopExecutionOnTimeout.js?t=1'></script>
+    <script type="text/javascript" src="/grafana-UI-frame/loginSpecial/layui/layui.js"></script>
+    <script type="text/javascript" src="/grafana-UI-frame/loginSpecial/js/Particleground.js"></script>
+    <script type="text/javascript" src="/grafana-UI-frame/loginSpecial/js/Treatment.js"></script>
+    <script type="text/javascript" src="/grafana-UI-frame/loginSpecial/js/jquery.mockjax.js"></script>
+    <script type="text/javascript" src="/grafana-UI-frame/loginSpecial/js/controlLogin.js"></script>
+</head>
+<body>
+
+</body>
+</html>
+
+<script>
+    var userName = getQueryVariable("userName");
+    var passWord = getQueryVariable("passWord");
+    var remember = getQueryVariable("remember");
+    alert(userName + "," + passWord + "," + remember);
+
+    $.ajax({
+        type: "POST",
+        url: "/User/LoginHandle",
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("XSRF-TOKEN",
+                $('input:hidden[name="__RequestVerificationToken"]').val());
+        },
+        data: { userName: userName, passWord: passWord, remember: remember },
+        success: function (msg) {
+            if (msg == "Success") {
+                window.location.href = "/WorkOrder/Index";
+            }
+            else if (msg == "config_error") {
+                alert("请以管理员账户登录配置后使用！");
+            }
+            else {
+                alert("用户名或密码错误");
+            }
+        },
+        error: function (msg) {
+            alert("用户名或密码错误");
+        }
+    });
+
+    function getQueryVariable(variable) {
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split("=");
+            if (pair[0] == variable) { return pair[1]; }
+        }
+        return (false);
+    }
+</script>

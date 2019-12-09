@@ -1,0 +1,293 @@
+﻿@{
+    Layout = null;
+    @model Advantech.IFactory.CommonLibrary.pro_schedule
+    @using Advantech.IFactory.CommonLibrary
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript" src="~/grafana-UI-frame/script/lib/jquery-3.3.1.min.js"></script>
+    <!--时间选择js控件-->
+    <script type="text/javascript" src="~/My97DatePicker/WdatePicker.js"></script>
+    <script>
+        $(function () {
+            $('.submit').click(function () {
+                var work_order = $('#work_order').val();
+                var standard_num = $('#standard_num').val();
+                var schedule_time = $('#schedule_time').val();
+                var class_id = $('#class_id').val();
+                var line_id = $('#line_id').val();
+                //console.log(work_order +" "+standard_num +" "+schedule_time+" "+class_id+" "+line_id);
+                if (work_order == "") {
+                    $("#prompt").text("请填写工单号码信息");
+                    $("#prompt").show();
+                }
+                else if (standard_num == "" || standard_num==0) {
+                    $("#prompt").text("请填写计划数量信息");
+                    $("#prompt").show();
+                }
+                else if (schedule_time == "" || schedule_time=="0001-01-01") {
+                    $("#prompt").text("请选择正确的计划日期");
+                    $("#prompt").show();
+                }
+                else if (class_id == "" || class_id<=0) {
+                    $("#prompt").text("请选择计划班次");
+                    $("#prompt").show();
+                }
+                else if (line_id == "" || line_id<=0) {
+                    $("#prompt").text("请选择该计划对应的线别信息");
+                    $("#prompt").show();
+                }
+                else {
+                    $("#prompt").hide();
+                    $("#myfrom").submit();
+                }
+            });
+        });
+
+        function getStationList() {
+            var line_ids = $('#line_id option:selected').val();
+            if (line_ids != "") {
+                $.ajax({
+                    type: "POST",
+                    url: "/Machine/GetStationList",
+                    data: { line_id: line_ids },
+                    success: function (msg) {
+                        $('#Station_div').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get line");
+                    }
+                });
+            }
+            else {
+                $('#station_id option').remove();
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>
+                @{
+                    if (Model == null)
+                    { <text>新增工单</text>}
+                    else
+                    { <text>编辑工单</text>}}
+            </span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="edit_title">
+                @{
+                    if (Model == null)
+                    { <text>新增工单</text>}
+                    else
+                    { <text>编辑工单</text>}
+                }
+            </div>
+            <div class="prompt" id="prompt"></div>
+        </div>
+        <form class="form-horizontal" action="/Proschedule/EditHandle" method="post" id="myfrom">
+            <div class="space"><input type="hidden" value="@if (ViewBag.id != null) {@ViewBag.id}" id="id" name="id" /></div>
+            <div class="single_div">
+                <div class="left">工单</div>
+                <div class="right">
+                @{ if (Model.id > 0)
+                    {
+                        <input type="text" class="text" id="work_order" name="work_order" value="@Model.work_order" readonly />
+                    }
+                    else
+                    {
+                        <input type="text" class="text" id="work_order" name="work_order" value="" autocomplete="off" />
+                    }
+                }
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">机种型号</div>
+                <div class="right">
+                    <input type="text" class="text" id="part_num" name="part_num" value="@Model.part_num" />
+                </div>
+            </div>
+            @*<div class="space"></div>
+            <div class="single_div">
+                <div class="left">制程工序</div>
+                <div class="right">
+                    @{ if (Model.id > 0)
+                    {
+                        <input type="text" class="text" id="unit_no" name="unit_no" value="@Model.unit_no" readonly />
+                    }
+                    else
+                    {
+                        <input type="text" class="text" id="unit_no" name="unit_no" value="WeldFrame" />
+                    }
+                    }
+                </div>
+            </div>*@
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">线别</div>
+                <div class="right">
+                    <select class="select" id="line_id" name="line_id">
+                    @{
+                        if (ViewBag.LineList != null && ViewBag.LineList.Count > 0)
+                        {
+                            List<line_info> lineList = ViewBag.LineList;
+                            for (int i = 0; i < lineList.Count; i++)
+                            {
+                                <!option value="@lineList[i].line_id" @if (Model != null) { if (lineList[i].line_id == Model.line_id) { <text> selected </text> } }>@lineList[i].line_name_cn</!option>
+                            }
+                        }
+                    }
+                    </select>
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">计划数量</div>
+                <div class="right">
+                    <input type="text" class="text" id="standard_num" name="standard_num" value="@if(Model!=null){@Model.standard_num}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">实际数量</div>
+                <div class="right">
+                    <input type="text" class="text" id="actual_num" name="actual_num" value="@if (Model != null) {@Model.actual_num} " />
+                </div>
+            </div>
+
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">不良数量</div>
+                <div class="right">
+                    <input type="text" class="text" id="defectives_count" name="defectives_count" value="@if(Model!=null){@Model.defectives_count}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">计划日期</div>
+                <div class="right">
+                    <input type="text" class="text" id="schedule_time" name="schedule_time" autocomplete="OFF" value="@if(Model!=null){@Model.schedule_time.ToString("yyyy-MM-dd")}" onclick="WdatePicker({ skin: 'whyGreen', dateFmt: 'yyyy-MM-dd' })"/>
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">计划班次</div>
+                <div class="right">
+                    <select class="select" id="class_id" name="class_id">
+                        @{
+                            if (ViewBag.ClassList != null && ViewBag.ClassList.Count > 0)
+                            {
+                                List<class_info> list = ViewBag.ClassList;
+                                for (int i = 0; i < list.Count; i++)
+                                {
+                                    <!option value="@list[i].class_id" @if (Model != null) { if (list[i].class_id == Model.class_id) { <text> selected </text> } }>
+                                    @list[i].class_name_cn</!option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+                </div>
+                <div class="space"></div>
+                <div class="single_div">
+                    <div class="left">当前状态</div>
+                    <div class="right">
+                        <select class="select" id="order_status" name="order_status">
+                            @{
+                                if (Model != null && Model.id > 0)//已经创建后的，编辑状态为排产和取消
+                                {
+                                    if (Model.order_status == (int)OrderStatusEnum.Created)//正常不显示创建，当为创建状态进入才显示创建
+                                    {
+                                        <!option value="0" @if (Model != null) { if (Model.order_status == (int)OrderStatusEnum.Created) { <text> selected </text> } }>创建 </!option>
+                                    }
+                                    <!option value="1" @if (Model != null) { if (Model.order_status == (int)OrderStatusEnum.Scheduled) { <text> selected </text> } }>排产 </!option>
+                                    <!option value="4" @if (Model != null) { if (Model.order_status == (int)OrderStatusEnum.Aborted) { <text> selected </text> } }>取消中止 </!option>
+                                }
+                                else
+                                {
+                                    <!option value="0" @if (Model != null) { if (Model.order_status == (int)OrderStatusEnum.Created) { <text> selected </text> } }>创建 </!option>
+                                    <!option value="1" @if (Model != null) { if (Model.order_status == (int)OrderStatusEnum.Scheduled) { <text> selected </text> } }>排产 </!option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space"></div>
+                <div class="single_div">
+                    <div class="left">序号</div>
+                    <div class="right">
+                        <input type="text" class="text" id="order_index" name="order_index" value="@if(Model!=null){@Model.order_index}" />
+                    </div>
+                </div>
+                <div class="space"></div>
+                <div class="single_div">
+                    <div class="left">标准工时</div>
+                    <div class="right">
+                        <input type="text" class="text" id="standard_workinghour" name="standard_workinghour" value="@if(Model!=null){@Model.standard_workinghour}" />
+                    </div>
+                </div>
+
+                <div class="single_div" style="display:none;">
+                    <div class="left">创建时间</div>
+                    <div class="right">
+                        <input type="text" class="text" id="insert_time" name="insert_time" value="@if(Model!=null){@Model.insert_time}" />
+                    </div>
+                </div>
+                <div class="space"></div>
+                <div class="single_div">
+                    <div class="left">结束选项</div>
+                    <div class="right">
+                        <select class="select" id="parameter_option" name="parameter_option">
+                            @{
+                                <!option value="0" @if (Model != null) { if (Model.parameter_option == (int)OrderFinishMode.ManualFinish) { <text> selected </text> } }>手工确认结束 </!option>
+                                <!option value="1" @if (Model != null) { if (Model.parameter_option == (int)OrderFinishMode.AutoFinish) { <text> selected </text> } }>到达数量后自动结束 </!option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                @*<div class="space"></div>
+        <div class="single_div">
+            <div class="left">标准用时</div>
+            <div class="right">
+                <input type="text" class="text" id="standard_usetime" name="standard_usetime" value="@if(Model!=null){@Model.standard_usetime}" />
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">生产力</div>
+            <div class="right">
+                <input type="text" class="text" id="productivity" name="productivity" value="@if(Model!=null){@Model.productivity}" />
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">达成率</div>
+            <div class="right">
+                <input type="text" class="text" id="achievement_rate" name="achievement_rate" value="@if(Model!=null){@Model.achievement_rate}" />
+            </div>
+        </div>*@
+                <div class="space"></div>
+                <div class="single_div">
+                    <div class="left"></div>
+                    <div class="right">
+                        <input type="button" class="submit" style=" width:12%" value="提交" />
+                    </div>
+                </div>
+                <div class="space"></div>
+</form>
+    </div>
+</body>
+</html>

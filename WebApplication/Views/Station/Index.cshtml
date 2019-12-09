@@ -1,0 +1,99 @@
+﻿@{
+    Layout = null;
+    @model List<Advantech.IFactory.CommonLibrary.station_info>
+
+}
+@using AspNetCoreMvcPager;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript">
+        function deleteTiShi(url) {
+            if (confirm("确认删除数据？")) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>站别列表</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" action="/Station" method="post" id="myfrom">
+            <div class="search">
+
+                @*<div class="lable_div">Line:</div>
+                <div class="text_div"><input type="text" class="text" id="line" name="line" /></div>*@
+                @*<div class="lable_div">StationCode:</div>
+                <div class="text_div"><input type="text" class="text" id="station_code" name="station_code" /></div>*@
+                @*<div class="submit_div"><input type="submit" value="Search" class="submit" /></div>*@
+                @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Admin)
+                {
+                    <div class="button_div"><input type="button" value="新增站别" class="submit" onclick="window.location.href = '/Station/Edit'" /></div>
+                }
+
+            </div>
+        </form>
+        <div class="space"></div>
+        <table cellspacing="1" cellpadding="1">
+            <tr class="color">
+                <td style=" width: 10%">编号</td>
+                @* <td style=" width: 13%">type_no</td>*@
+                <td style=" width: 10%">站别(英文)</td>
+                <td style=" width: 12%">站别(中文简体)</td>
+                <td style=" width: 12%">站别(中文繁体)</td>
+                <td style=" width: 12%">制程代码</td>
+                <td style=" width: 10%">转换系数值</td>
+                <td style=" width: 8%">编辑</td>
+                <td style=" width: 8%">删除</td>
+            </tr>
+            @{
+                int id = 1;
+                foreach (var itmes in Model)
+                {
+                        <tr>
+                            <td>@id</td>
+                            @* <td>@itmes.type_no</td>*@
+                            <td>@itmes.station_name_en</td>
+                            <td>@itmes.station_name_cn</td>
+                            <td>@itmes.station_name_tw</td>
+                            <td>@itmes.unit_no</td>
+                            <td>@itmes.convert_multiplier</td>
+                            <td>
+                                @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Admin)
+                                {
+                                    <a href="/Station/Edit?station_id=@itmes.station_id">编辑</a>
+                                }
+                                else
+                                {
+                                    <label>-</label>
+                                }
+                            </td>
+                            <td>
+                                @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Admin)
+                                {
+                                    <a href="#" onclick="deleteTiShi('/Station/Del?id=@itmes.station_id')">删除</a>
+                                }
+                                else
+                                {
+                                    <label>-</label>
+                                }
+                            </td>
+
+                        </tr>
+                    id++;
+                }
+
+            }
+        </table>
+        <div class="page-nav" id="pageIndex">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "Station", "Index", true))</div>
+    </div>
+</body>
+</html>

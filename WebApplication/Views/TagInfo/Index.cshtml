@@ -1,0 +1,96 @@
+﻿@{
+    Layout = null;
+    @model List<Advantech.IFactory.CommonLibrary.webaccess_tag_info_web>
+}
+@using AspNetCoreMvcPager;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript">
+        function deleteAlert(url) {
+            if (confirm("whether to delete?")) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>标签><span>WebAccess标签列表</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" action="/Lamp" method="post" id="myfrom">
+            <div class="search">
+            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Admin)
+            {
+                <div class="button_div" style="margin-left:1%;width:10vw"><input type="button" value="新增" class="submit" onclick="window.location.href = '/TagInfo/Edit'" /></div>
+            }
+            </div>
+        </form>
+        @*<div class="space"></div>
+        <div class="space"></div>
+        @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Admin)
+        {
+            <div class="button_div" style="color:bisque;margin-left:90%;height:40px;width:100px"><input type="button" value="新增" onclick="window.location.href = '/TagInfo/Edit'" class="submit" /></div>
+        }*@
+        <table cellspacing="1" cellpadding="1">
+            <tr class="color">
+                <td style=" width: 5%">序号</td>
+                <td style=" width: 25%">WebAccess标签编码</td>
+                <td style=" width: 10%">标签类型</td>
+                <td style=" width: 15%">标签编码</td>
+                <td style=" width: 15%">描述</td>
+                <td style=" width: 10%">区域属性</td>
+                <td style=" width: 10%">区域属性值</td>
+                <td style=" width: 5%">编辑</td>
+                <td style=" width: 5%">删除</td>
+            </tr>
+            @{
+                int id = 1;
+                foreach (var itmes in Model)
+                {
+                    <tr>
+                        <td>@id</td>
+                        <td>@itmes.tag_code</td>
+                        <td>@itmes.system_type_code</td>
+                        <td>@itmes.system_tag_code</td>
+                        <td>@itmes.tag_description</td>
+                        <td>@itmes.area_attribute_name</td>
+                        <td>@itmes.area_attribute_sub_name</td>
+                        <td>
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Admin)
+                            {
+                                <a href="/TagInfo/Edit?id=@itmes.id&1=@itmes.system_type_code&2=@itmes.tag_code&3=@itmes.system_tag_code&4=@itmes.tag_description&5=@itmes.area_attribute_name&6=@itmes.area_attribute_sub_name&pageIndex=@ViewBag.model.pageIndex">编辑</a>
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+                        <td>
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Admin)
+                            {
+                                <a href="#" onclick="deleteAlert('/TagInfo/Delete?id=@itmes.id&pageIndex=@ViewBag.model.pageIndex')">删除</a>
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+                    </tr>
+                    id++;
+                }
+            }
+        </table>
+        <div class="page-nav" id="pageIndex">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "TagInfo", "Index", true))</div>
+    </div>
+</body>
+</html>
+
+

@@ -1,0 +1,89 @@
+﻿@{
+    Layout = null;
+    @model List<Advantech.IFactory.CommonLibrary.system_tag_code_web>
+}
+@using AspNetCoreMvcPager;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript">
+        function deleteTiShi(url) {
+            if (confirm("whether to delete?")) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>标签><span>系统标签列表</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" action="/Lamp" method="post" id="myfrom">
+            <div class="search">
+            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Admin)
+            {
+               <div class="button_div" style="margin-left:1%;width:10vw"><input type="button" value="新增" class="submit" onclick="window.location.href = '/SystemTag/Edit'" /></div>
+            }
+            </div>
+        </form>
+        <table cellspacing="1" cellpadding="1">
+            <tr class="color">
+                <td style=" width: 5%">序号</td>
+                <td style=" width: 20%">类别</td>
+                <td style=" width: 20%">系统标签(英)</td>
+                <td style=" width: 20%">系统标签(中)</td>
+                <td style=" width: 15%">系统标签(台)</td>
+                <td style=" width: 10%">描述</td>
+                <td style=" width: 5%">编辑</td>
+                <td style=" width: 5%">删除</td>
+            </tr>
+            @{
+                int id = 1;
+                foreach (var itmes in Model)
+                {
+                    <tr>
+                        <td>@id</td>
+                        <td>@itmes.type_name_en</td>
+                        <td>@itmes.code_name_en</td>
+                        <td>@itmes.code_name_cn</td>
+                        <td>@itmes.code_name_tw</td>
+                        <td>@itmes.code_description</td>
+                        <td>
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Admin)
+                            {
+                                <a href="/SystemTag/Edit?name=@itmes.code_name_en&pageindex=@ViewBag.model.pageIndex">编辑</a>
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+                        <td>
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Admin)
+                            {
+                                <a href="#" onclick="deleteTiShi('/SystemTag/Delete?name=@itmes.code_name_en&pageIndex=@ViewBag.model.pageIndex')">删除</a>
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+                    </tr>
+                    id++;
+                }
+            }
+
+        </table>
+        <div class="page-nav" id="pageIndex">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "SystemTag", "Index", true))</div>
+    </div>
+</body>
+</html>
+
+

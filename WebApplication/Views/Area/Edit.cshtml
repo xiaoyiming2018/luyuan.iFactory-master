@@ -1,0 +1,100 @@
+﻿@{
+    Layout = null;
+    @model Advantech.IFactory.CommonLibrary.area_info
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript" src="~/grafana-UI-frame/script/lib/jquery-3.3.1.min.js"></script>
+    <script>
+        $(function () {
+            $('.submit').click(function () {
+                var area_name_en = $('#area_name_en').val();
+                if (area_name_en == "") {
+                    $("#prompt").text("Area Name(EN) Can't be empty");
+                    $("#prompt").show();
+                }
+                else {
+                    $("#prompt").hide();
+                    $("#myfrom").submit();
+                }
+
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置>
+            <span>
+                @{
+                    if (Model == null)
+                    { <text>新增区域</text>}
+                else
+                { <text>编辑区域</text>}}
+            </span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="edit_title">
+                @{
+                    if (Model == null)
+                    { <text>新增区域</text>}
+                else
+                { <text>编辑区域</text>}
+                }
+            </div>
+            <div class="prompt" id="prompt"></div>
+        </div>
+        <form class="form-horizontal" action="/Area/EditHandle" method="post" id="myfrom">
+            <div class="space"><input type="hidden" value="@if(ViewBag.id!=null){@ViewBag.id}" id="id" name="id" /></div>
+            <div class="single_div">
+                <div class="left">区域名称（英文）</div>
+                <div class="right">
+                    <input type="text" class="text" id="area_name_en" name="area_name_en" value="@if(Model!=null){@Model.area_name_en}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">区域名称（简体中文）</div>
+                <div class="right">
+                    <input type="text" class="text" id="area_name_cn" name="area_name_cn" value="@if(Model!=null){@Model.area_name_cn}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">区域名称（繁体中文）</div>
+                <div class="right">
+                    <input type="text" class="text" id="area_name_tw" name="area_name_tw" value="@if(Model!=null){@Model.area_name_tw}" />
+                </div>
+            </div>
+
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">时区</div>
+                <div class="right">
+                    <input type="text" class="text"  placeholder="默认是8" id="time_zone" name="time_zone" value="@if(Model!=null){@Model.time_zone}" />
+                </div>
+            </div>
+
+
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left"></div>
+                <div class="right">
+                    <input type="button" class="submit" style=" width:15%" value="提交" />
+                </div>
+            </div>
+            <div class="space"></div>
+        </form>
+    </div>
+</body>
+</html>

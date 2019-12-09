@@ -1,0 +1,157 @@
+﻿@{
+    Layout = null;
+    @model List<ProScheduleObject>
+    @using Advantech.IFactory.CommonLibrary
+    @using AspNetCoreMvcPager;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript">
+        function deleteAlert(url) {
+            if (confirm("确定删除数据吗？")) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>工单><span>未执行完工单列表</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" action="/Lamp" method="post" id="myfrom">
+            <div class="search">
+
+                @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Operator)
+                {
+                    <div class="button_div" style="margin-left:1%;width:10vw"><input type="button" value="新增工单" class="submit" onclick="window.location.href = '/Proschedule/Edit'" /></div>
+                }
+
+            </div>
+        </form>
+        <div class="space"></div>
+        <table cellspacing="1" cellpadding="1">
+            <tr class="color">
+                <td style=" width:5%">编号</td>
+                <td style=" width:9%">工单</td>
+                <td style=" width:9%">机种型号</td>
+                <td style=" width:6%">制程代码</td>
+                <td style=" width:6%">线别</td>
+                <td style=" width:5%">计划数量</td>
+                <td style=" width:5%">实际数量</td>
+                <td style=" width:5%">不良数量</td>
+                <td style=" width:10%">开始时间</td>
+                <td style=" width:10%">计划日期</td>
+                <td style=" width:10%">创建时间</td>
+                <td style=" width:4%">计划班次</td>
+                <td style=" width:6%">当前状态</td>
+                <td style=" width:5%">编辑</td>
+                <td style=" width:5%">删除</td>
+            </tr>
+            @{
+                int id = 1;
+                List<class_info> classList = ViewBag.ClassList;
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@id</td>
+                        <td>@item.SchduleObject.work_order</td>
+                        <td>@item.SchduleObject.part_num</td>
+                        <td>@item.SchduleObject.unit_no</td>
+                        <td>@item.LineObject.line_name_en</td>
+                        <td>@item.SchduleObject.standard_num</td>
+                        <td>@item.SchduleObject.actual_num</td>
+                        <td>@item.SchduleObject.defectives_count</td>
+                        @if (item.SchduleObject.start_time <= Convert.ToDateTime("2001/1/1 0:00:00"))
+                        {
+                            <td>-</td>
+                        }
+                        else
+                        {
+                            <td>@item.SchduleObject.start_time.ToString("yyyy/MM/dd HH:mm:ss")</td>
+                        }
+                        @if (item.SchduleObject.schedule_time <= Convert.ToDateTime("2001/1/1"))
+                        {
+                            <td>-</td>
+                        }
+                        else
+                        {
+                            <td>@item.SchduleObject.schedule_time.ToString("yyyy/MM/dd")</td>
+                        }
+                        <td>@item.SchduleObject.insert_time.ToString("yyyy/MM/dd HH:mm:ss")</td>
+
+                        @if (classList.FirstOrDefault(x => x.class_id == item.SchduleObject.class_id) != null)
+                        {
+                            <td>
+                                @classList.FirstOrDefault(x => x.class_id == item.SchduleObject.class_id).class_name_cn
+                            </td>
+                        }
+                        else
+                        {
+                            <td>-</td>
+                        }
+                            
+                        <td>
+                        @if (item.SchduleObject.order_status == (int)OrderStatusEnum.Created)
+                        {<text>已创建</text>}
+                        else if (item.SchduleObject.order_status == (int)OrderStatusEnum.Scheduled)
+                        {
+                            <text>已排产</text>
+                        }
+                        else if (item.SchduleObject.order_status == (int)OrderStatusEnum.Excuting)
+                        {
+                            <text>执行中</text>
+                        }
+                        else if (item.SchduleObject.order_status == (int)OrderStatusEnum.Finished)
+                        {
+                            <text>已完成</text>
+                        }
+                        else if (item.SchduleObject.order_status == (int)OrderStatusEnum.Aborted)
+                        {
+                            <text>取消中止</text>
+                        }
+                        </td>
+                        <td>
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Operator)
+                            {
+                                <a href="/Proschedule/Edit?id=@item.SchduleObject.id">编辑</a>
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+                        <td>
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Operator)
+                            {
+                                <a href="#" onclick="deleteAlert('/Proschedule/Del?id=@item.SchduleObject.id')">删除</a>
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+
+                    </tr>
+                    id++;
+                }
+
+            }
+        </table>
+        @{
+            if (ViewBag.model != null)
+            {
+                <div class="page-nav" id="pageIndex">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "Proschedule", "Index", true))</div>
+            }
+        }
+    </div>
+</body>
+</html>

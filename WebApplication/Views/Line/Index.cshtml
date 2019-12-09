@@ -1,0 +1,200 @@
+﻿@{
+    Layout = null;
+    @model List<Advantech.IFactory.CommonLibrary.line_info>
+
+}
+@using AspNetCoreMvcPager;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript" src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript">
+        function deleteTiShi(url) {
+            if (confirm("确认删除数据？")) {
+                window.location.href = url;
+            }
+        }
+        function getCityList() {
+            var area_id = $('#area_id option:selected').val()
+            if (area_id > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Plant/GetCityList",
+                    data: { area_id: area_id },
+                    success: function (msg) {
+                        $('#city_div').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get city");
+                    }
+                });
+            }
+            else {
+                $('#city_id option').remove();
+            }
+        }
+
+        function getPlantList() {
+
+            var city_id = $('#city_id option:selected').val();
+            if (city_id > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Line/GetPlantList",
+                    data: { city_id: city_id },
+                    success: function (msg) {
+                        $('#plant_div').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get plant");
+                    }
+                });
+            }
+            else {
+                $('#plant_id option').remove();
+            }
+        }
+
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>线别列表</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" action="/Line/Index" method="post" id="myfrom">
+            <div class="search">
+                <div class="lable_div" style=" margin-left:1%">区域名称:</div>
+                <div class="text_div">
+                    <select class="select" id="area_id" name="area_id" onchange="getCityList()">
+                        <option value=""></option>
+                        @{
+                            Advantech.IFactory.CommonLibrary.AreaInfoManager AIM = new Advantech.IFactory.CommonLibrary.AreaInfoManager();
+                            List<Advantech.IFactory.CommonLibrary.area_info> objarea = AIM.SelectAll();
+                            if (objarea.Count > 0)
+                            {
+                                for (int i = 0; i < objarea.Count; i++)
+                                {
+                                    <option value="@objarea[i].area_id">@objarea[i].area_name_en</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="lable_div">城市名称:</div>
+                <div class="text_div" id="city_div">
+                    <select class="select" id="city_id" name="city_id">
+                        <option value=""></option>
+                    </select>
+                </div>
+                <div class="lable_div">厂区名称:</div>
+                <div class="text_div" id="plant_div">
+                    <select class="select" id="plant_id" name="plant_id">
+                        <option value=""></option>
+                    </select>
+                </div>
+                <div class="lable_div">制程代码:</div>
+                <div class="text_div">
+                    <select class="select" id="unit_no" name="unit_no">
+                        <option value=""></option>
+                        @{
+                            Advantech.IFactory.CommonLibrary.UnitInfoManager UIM = new Advantech.IFactory.CommonLibrary.UnitInfoManager();
+                            List<Advantech.IFactory.CommonLibrary.unit_info> objUnitList = UIM.SelectAll();
+                            if (objUnitList.Count > 0)
+                            {
+                                for (int i = 0; i < objUnitList.Count; i++)
+                                {
+                                    <option value="@objUnitList[i].unit_no">@objUnitList[i].unit_no</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="submit_div"><input type="submit" value="查询" class="submit" /></div>
+                @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Admin)
+                {
+                    <div class="button_div"><input type="button" value="新增线别" class="submit" onclick="window.location.href = '/Line/Edit'" /></div>
+                }
+
+            </div>
+        </form>
+        <div class="space"></div>
+        <table cellspacing="1" cellpadding="1">
+            <tr class="color">
+                <td style=" width:4%">编号</td>
+                <td style=" width:10%">区域名称</td>
+                <td style=" width:10%">城市名称</td>
+                <td style=" width:10%">厂区名称</td>
+                <td style=" width:7%">制程代码</td>
+                <td style=" width:10%">线别(英文)</td>
+                <td style=" width:10%">线别(简体中文)</td>
+                <td style=" width:10%">线别(繁体中文)</td>
+                <td style=" width:10%">位置</td>
+                <td style=" width:7%">状态</td>
+                <td style=" width:6%">编辑</td>
+                <td style=" width:6%">删除</td>
+            </tr>
+            @{
+                List<Advantech.IFactory.CommonLibrary.city_info> objCityList = new List<Advantech.IFactory.CommonLibrary.city_info>();
+                Advantech.IFactory.CommonLibrary.CityInfoManager CIM = new Advantech.IFactory.CommonLibrary.CityInfoManager();
+                objCityList = CIM.SelectAll();
+                Advantech.IFactory.CommonLibrary.AreaInfoManager AM = new Advantech.IFactory.CommonLibrary.AreaInfoManager();
+                List<Advantech.IFactory.CommonLibrary.area_info> objlist = AM.SelectAll();//3.4号重新申明
+                List<Advantech.IFactory.CommonLibrary.plant_info> objPlant = new List<Advantech.IFactory.CommonLibrary.plant_info>();
+                Advantech.IFactory.CommonLibrary.PlantInfoManager PIM = new Advantech.IFactory.CommonLibrary.PlantInfoManager();
+                objPlant = PIM.SelectAll();
+                int id = 1;
+                foreach (var itmes in Model)
+                {
+                    string plant_name_en = objPlant.Find(t => t.plant_id == itmes.plant_id).plant_name_en;
+                    int city_id = objPlant.Find(t => t.plant_id == itmes.plant_id).city_id;
+                    string city_name_en = objCityList.Find(t => t.city_id == city_id).city_name_en;
+                    int area_id = objCityList.Find(t => t.city_id == city_id).area_id;
+                    string area_name_en = objlist.Find(t => t.area_id == area_id).area_name_en;
+                    <tr>
+                        <td>@id</td>
+                        <td>@area_name_en</td>
+                        <td>@city_name_en</td>
+                        <td>@plant_name_en</td>
+                        <td>@itmes.unit_no</td>
+                        <td>@itmes.line_name_en</td>
+                        <td>@itmes.line_name_cn</td>
+                        <td>@itmes.line_name_tw</td>
+                        <td>@itmes.story</td>
+                        <td>@itmes.status_no</td>
+                        <td>
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                            {
+                                <a href="/Line/Edit?id=@itmes.line_id&area_id=@area_id&city_id=@city_id&plant_id=@itmes.plant_id">编辑</a>
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+                        <td>
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Admin)
+                            {
+                                <a href="#" onclick="deleteTiShi('/Line/Del?id=@itmes.line_id')">删除</a>
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+                    </tr>
+                    id++;
+                }
+
+            }
+        </table>
+        <div class="page-nav" id="pageIndex">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "Line", "Index", true))</div>
+    </div>
+</body>
+</html>

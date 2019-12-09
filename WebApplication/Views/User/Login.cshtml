@@ -1,0 +1,96 @@
+﻿@{
+    Layout = null;
+}
+@Html.AntiForgeryToken()
+@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>物联网系统</title>
+    <link href="~/grafana-UI-frame/loginSpecial/css/default.css" rel="stylesheet" type="text/css" />
+    <!--必要样式-->
+    <link href="~/grafana-UI-frame/loginSpecial/css/styles.css" rel="stylesheet" type="text/css" />
+
+    <link href="~/grafana-UI-frame/loginSpecial/css/loaders.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script>
+        $(function () {
+            $('#button').click(function () {
+                var userName = $("#userName").val();
+                var passWord = $("#passWord").val();
+                var remember = $("input[type='checkbox']").is(':checked');
+                if (userName != "" && passWord != "") {
+                    $(".login_FalseHints").text("Sign in to SRP Management platform");
+                    $.ajax({
+                        type: "POST",
+                        url: "/User/LoginHandle?userName=" + userName +"&passWord=" + passWord + "&remember=" + remember,
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("XSRF-TOKEN",
+                                $('input:hidden[name="__RequestVerificationToken"]').val());
+                        },
+                        data: { userName: userName, passWord: passWord, remember: remember },
+                        success: function (msg) {
+                            if (msg == "Success") {
+                                window.location.href = "/Home/Index";
+                            }
+                            else {
+                                $(".login_FalseHints").text("UserName or password error");
+                            }
+                        },
+                        error: function (msg) {
+                            $(".login_FalseHints").text("UserName or password error");
+                        }
+                    });
+                }
+                else {
+                    if (userName == "") {
+                        $(".login_FalseHints").text("The UserName cannot be empty");
+                    }
+                    else if (passWord == "") {
+                        $(".login_FalseHints").text("The password can not be empty");
+                    }
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class='login'>
+        <div class='logo'>
+            <img src="~/grafana-UI-frame/loginSpecial/img/wise-paas-logo.svg" />
+        </div>
+        <div class='login_title'>
+            <img src="~/grafana-UI-frame/loginSpecial/img/Dashboard-login.svg" />
+        </div>
+        <div class='login_fields'>
+            <div class="login_FalseHints">Sign in to IOT System</div>
+            <div class="login_UserName">
+                <input type="text" name="userName" id="userName" placeholder='UserName' />
+            </div>
+            <div class="login_UserName">
+                <input type="password" name="passWord" id="passWord" placeholder='PassWord' />
+            </div>
+            <div class="login_Remember">
+                <input type="checkbox" value="1" id="remember" name="remember" />
+                <span>Remember me</span>
+            </div>
+            <div class="login_button">
+                <input type="button" value="Sign in" id="button" />
+            </div>
+        </div>
+        <div class='disclaimer'>
+            <p>Welcome to Iot.Version:<a href="#">@ViewBag.version</a></p>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" src="~/grafana-UI-frame/loginSpecial/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src='~/grafana-UI-frame/loginSpecial/js/stopExecutionOnTimeout.js?t=1'></script>
+    <script src="~/grafana-UI-frame/loginSpecial/layui/layui.js" type="text/javascript"></script>
+    <script src="~/grafana-UI-frame/loginSpecial/js/Particleground.js" type="text/javascript"></script>
+    <script src="~/grafana-UI-frame/loginSpecial/js/Treatment.js" type="text/javascript"></script>
+    <script src="~/grafana-UI-frame/loginSpecial/js/jquery.mockjax.js" type="text/javascript"></script>
+    <script src="~/grafana-UI-frame/loginSpecial/js/controlLogin.js" type="text/javascript"></script>
+</body>
+</html>

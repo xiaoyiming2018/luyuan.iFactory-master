@@ -1,0 +1,145 @@
+﻿@{
+    Layout = null;
+    @model Advantech.IFactory.CommonLibrary.Attendance
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript" src="~/grafana-UI-frame/script/lib/jquery-3.3.1.min.js"></script>
+    <script>
+        $(function () {
+            $('.submit').click(function () {
+                var id = $('#id').val();
+                $("#prompt").hide();
+                $("#myfrom").submit();
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>
+                @{ if (Model == null)
+                    { <text>新增出勤资讯</text>}
+                else
+                { <text>编辑出勤资讯</text>}}
+            </span>
+        </div>
+    </div>
+
+    <div class="body">
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="edit_title">
+                @{
+                    if (Model == null)
+                    { <text>新增出勤资讯</text>}
+                else
+                { <text>编辑出勤资讯</text>}
+                }
+            </div>
+            <div class="prompt" id="prompt"></div>
+        </div>
+        <form class="form-horizontal" asp-controller="Attendance" asp-action="EditHandle" method="post" id="myfrom">
+            <div class="space"><input type="hidden" value="@if(ViewBag.id!=null){@ViewBag.id}" id="id" name="id" /></div>
+
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">制程代码</div>
+                <div class="right">
+                    <select class="select" id="unit_no" name="unit_no">
+                        <option value=""></option>
+                        @{
+
+                            Advantech.IFactory.CommonLibrary.UnitInfoManager AIM = new Advantech.IFactory.CommonLibrary.UnitInfoManager();
+                            List<Advantech.IFactory.CommonLibrary.unit_info> objList = AIM.SelectAll();
+                            if (objList.Count > 0)
+                            {
+                                for (int i = 0; i < objList.Count; i++)
+                                {
+                                    <!option value="@objList[i].unit_no" @if(Model!=null){if(objList[i].unit_no == Model.unit_no){<text>selected</text>}}>@objList[i].unit_no</!option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">班别代码</div>
+                <div class="right">
+                    <select class="select" id="class_no" name="class_no">
+                        <option value=""></option>
+                        @{
+                            Advantech.IFactory.CommonLibrary.ClassInfoManager CLM = new Advantech.IFactory.CommonLibrary.ClassInfoManager();
+                            List<Advantech.IFactory.CommonLibrary.class_info> objclass = CLM.SelectAll();
+                            if (objclass.Count > 0)
+                            {
+                                for (int i = 0; i < objclass.Count; i++)
+                                {
+                                    <!option value="@objclass[i].class_no" @if(Model!=null){if(objclass[i].class_no == Model.class_no){<text>selected</text>}}>@objclass[i].class_no</!option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">线别</div>
+                <div class="right">
+                    <select class="select" id="line_id" name="line_id">
+                        <option value=""></option>
+                        @{
+                            Advantech.IFactory.CommonLibrary.LineInfoManager LIM = new Advantech.IFactory.CommonLibrary.LineInfoManager();
+                            List<Advantech.IFactory.CommonLibrary.line_info> objline = LIM.SelectAll();
+                            if (objline.Count > 0)
+                            {
+                                for (int i = 0; i < objline.Count; i++)
+                                {
+                                    <!option value="@objline[i].line_id" @if(Model!=null){if(objline[i].line_id == Model.line_id){<text>selected</text>}}>@objline[i].line_name_cn</!option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">标准人数</div>
+                <div class="right">
+                    <input type="text" class="text" id="standard_num" name="standard_num" value="@if(Model!=null){@Model.standard_num}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">实际人数</div>
+                <div class="right">
+                    <input type="text" class="text" id="real_num" name="real_num" value="@if(Model!=null){@Model.real_num}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">出勤率</div>
+                <div class="right">
+                    <input type="text" readonly="readonly" disabled="disabled"  class="text" id="attendance_rate" placeholder="后台自动计算，不允许手动输入" name="attendance_rate" value="@if(Model!=null){@Model.attendance_rate}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left"></div>
+                <div class="right">
+                    <input type="button" class="submit" style=" width:15%" value="提交" />
+                </div>
+            </div>
+            <div class="space"></div>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,94 @@
+﻿@{
+    Layout = null;
+}
+@using AspNetCoreMvcPager;
+@using Advantech.IFactory.CommonLibrary;
+@model List<Advantech.IFactory.CommonLibrary.RequestAndInfo>
+
+
+<!DOCTYPE html>
+<html style="background:#191A1C">
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta content="telephone=no" name="format-detection">
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <link rel="stylesheet" href="~/css/common.css" />
+    <link rel="stylesheet" href="~/grafana-UI-frame/style/bootstrap.min.css">
+    <script type="text/javascript" src="~/grafana-UI-frame/script/lib/jquery-3.3.1.min.js"></script>
+    <script src="~/grafana-UI-frame/script/lib/bootstrap.min.js"></script>
+    <script type="text/javascript" src="~/My97DatePicker/WdatePicker.js"></script>
+
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            <text style="font-size:larger">已完成配送</text>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <div class="space"></div>
+        <form class="form-horizontal" action="/MaterialConfirm/Finish" method="post" id="finish">
+            <div class="search">
+                <div class="lable_div" style="margin-left:1%">开始时间：</div>
+                <div class="text_div" style="width:14%"><input type="text" class="form-control" id="start_time" name="start_time" style="width:160px" onclick="WdatePicker({ skin: 'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss' })" value="@ViewBag.start_time" /></div>
+                <div class="lable_div">结束时间：</div>
+                <div class="text_div" style="width:14%"><input type="text" class="form-control" id="end_time" name="end_time" style="width:160px" onclick="WdatePicker({ skin: 'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss' })" value="@ViewBag.end_time" /></div>
+                <div class="lable_div">物料关键字：</div>
+                <div class="text_div" style="width:14%"><input type="text" class="form-control" id="material_name" name="material_name" style="width:160px" value="@ViewBag.material_name" /></div>
+                <input type="hidden" class="form-control" id="cookies2" name="cookies2" value="1" />
+                <div class="submit_div"><input type="submit" value="查询" class="submit" style='width:127.6px;' /></div>
+            </div>
+        </form>
+        <div class="space"></div>
+        <div class="space"></div>
+        <div class="lable_div" style="margin-left:1%">已完成物料配送列表</div>
+        <div class="space"></div>
+        <hr />
+        <div id="myTable1" name="myTable1">
+            <table cellspacing="1" cellpadding="1">
+                <tr class="color">
+                    <td class="w20">序号</td>
+                    <td class="w20">站位</td>
+                    <td class="w20">物料编码</td>
+                    <td class="w20">物料名称</td>
+                    <td class="w20">型号规格</td>
+                    <td class="w20">数量</td>
+                    <td class="w20">工单</td>
+                    <td class="w20">呼叫时间</td>
+                    <td class="w20">配送人员确认时间</td>
+                    <td class="w20">配送人员</td>
+                </tr>
+                @{
+                    int id = 1;
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@id</td>
+                            <td>@item.station_name</td>
+                            <td>@item.material_code</td>
+                            <td>@item.material_name</td>
+                            <td>@item.material_type</td>
+                            <td>@item.request_count</td>
+                            <td>@item.work_order</td>
+                            <td>@item.createtime</td>
+                            <td>@item.depot_ack_time</td>
+                            <td>@item.user_name</td>
+                        </tr>
+                        id++;
+                    }
+                }
+            </table>
+            <div class="page-nav">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "MaterialConfirm", "Finish", true))</div>
+        </div>
+    </div>
+
+
+</body>
+</html>
+
+
+

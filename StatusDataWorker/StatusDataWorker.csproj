@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AssemblyName>Advantech.IFactory.MachineStatusCollect</AssemblyName>
+    <RootNamespace>Advantech.IFactory.MachineStatusCollect</RootNamespace>
+    <ApplicationIcon />
+    <OutputType>Exe</OutputType>
+    <StartupObject />
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="BLL\**" />
+    <Compile Remove="DAL\**" />
+    <Compile Remove="Model\**" />
+    <EmbeddedResource Remove="BLL\**" />
+    <EmbeddedResource Remove="DAL\**" />
+    <EmbeddedResource Remove="Model\**" />
+    <None Remove="BLL\**" />
+    <None Remove="DAL\**" />
+    <None Remove="Model\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CommonHelper\CommonHelper.csproj" />
+    <ProjectReference Include="..\CommonLibrary\CommonLibrary.csproj" />
+  </ItemGroup>
+
+</Project>

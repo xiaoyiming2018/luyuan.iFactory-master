@@ -1,0 +1,17 @@
+﻿@{
+    Layout = null;
+    List<station_info> objList = new List<station_info>();
+    if (ViewBag.stationList != null)
+    {
+        objList = ViewBag.stationList;
+    }
+}
+<select class="select" id="station_id" name="station_id">
+    <option value=""></option>
+    @{
+        for (int i = 0; i < objList.Count; i++)
+        {
+            <!option value="@objList[i].station_id">@objList[i].station_name_cn</!option>
+        }
+    }
+</select>

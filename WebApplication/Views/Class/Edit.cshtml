@@ -1,0 +1,119 @@
+﻿@{
+    Layout = null;
+    @model Advantech.IFactory.CommonLibrary.class_info
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript" src="~/grafana-UI-frame/script/lib/jquery-3.3.1.min.js"></script>
+    <script>
+        $(function () {
+            $('.submit').click(function () {
+                var class_no = $('#class_no').val();
+                var class_name_en = $('#class_name_en').val();
+
+                if (class_no == "" || class_name_en == "") {
+                    if (class_no == "") {
+                        $("#prompt").text("制程代码不可为空");
+                        $("#prompt").show();
+                    }
+                    else if(class_name_en == "")
+                    {
+                        $("#prompt").text("班别不可为空");
+                        $("#prompt").show();
+                    }
+                }
+                else {
+                    $("#prompt").hide();
+                    $("#myfrom").submit();
+                }
+
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>
+                @{
+                    if (Model == null)
+                    { <text>新增班别</text>}
+                else
+                { <text>编辑班别</text>}}
+            </span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="edit_title">
+                @{
+                    if (Model == null)
+                    { <text>新增班别</text>}
+                else
+                { <text>编辑班别</text>}
+                }
+            </div>
+            <div class="prompt" id="prompt"></div>
+        </div>
+        <form class="form-horizontal" action="/Class/EditHandle" method="post" id="myfrom">
+            <div class="space"><input type="hidden" value="@if(ViewBag.id!=null){@ViewBag.id}" id="id" name="id" /></div>
+            <div class="single_div">
+                <div class="left">班别代码</div>
+                <div class="right">
+                    <input type="text" class="text" id="class_no" name="class_no" value="@if(Model!=null){@Model.class_no}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">班别(英文)</div>
+                <div class="right">
+                    <input type="text" class="text" id="class_name_en" name="class_name_en" value="@if(Model!=null){@Model.class_name_en}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">班别(中文简体)</div>
+                <div class="right">
+                    <input type="text" class="text" id="class_name_cn" name="class_name_cn" value="@if(Model!=null){@Model.class_name_cn}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">班别(中文繁体)</div>
+                <div class="right">
+                    <input type="text" class="text" id="class_name_tw" name="class_name_tw" value="@if(Model!=null){@Model.class_name_tw}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">开始时间</div>
+                <div class="right">
+                    <input type="text" class="text" id="start_time" name="start_time" value="@if(Model!=null){@Model.start_time}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">结束时间</div>
+                <div class="right">
+                    <input type="text" class="text" id="end_time" name="end_time" value="@if(Model!=null){@Model.end_time}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left"></div>
+                <div class="right">
+                    <input type="button" class="submit" style=" width:15%" value="提交" />
+                </div>
+            </div>
+            <div class="space"></div>
+        </form>
+    </div>
+</body>
+</html>

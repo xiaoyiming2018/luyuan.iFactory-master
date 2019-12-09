@@ -1,0 +1,91 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript" src="~/grafana-UI-frame/script/lib/jquery-3.3.1.min.js"></script>
+    <script>
+        $(function () {
+            $('.submit').click(function () {
+                var file = $('#file').val();
+                var point = file.lastIndexOf(".");
+                var type = file.substr(point);
+                if (file != "") {
+                    if (type.toLowerCase() != ".csv".toLocaleLowerCase()) {
+                        $("#prompt").text("File format is wrong, only supports CSV format.");
+                        $("#prompt").show();
+                    }
+                    else {
+                        $("#prompt").hide();
+                        $("#myfrom").submit();
+                    }
+                }
+                else {
+                    $("#prompt").text("The file must not be empty.");
+                    $("#prompt").show();
+                }
+
+            });
+        });
+        function change() {
+            var obj = document.getElementById("file_address");
+
+            if (obj.files.length > 0) {
+                var temp = obj.files[0].name;
+                var size = obj.files[0].size;
+                if ((size / 1024 / 1024) > 40) {
+                    alert("Photo maximum support 40M");
+                }
+                else {
+                    $("#file").val(temp);
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>休息时间(排休)</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="edit_title">
+              导入休息时间
+            </div>
+            <div class="prompt" id="prompt"></div>
+        </div>
+        <form class="form-horizontal" action="/RestTimeRow/EditHandle" method="post" id="myfrom" enctype="multipart/form-data">
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">Import format Download</div>
+                <div class="left" style="text-align:left;margin-left:3%">
+                    <a href="~/grafana-UI-frame/tem.csv">Download</a>
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">Import</div>
+                <div class="right">
+                    <input type="text" class="text" id="file" name="file" value="" onclick="$('input[id=file_address]').click();" />
+                    <input id="file_address" name="file_address" type="file" onchange="change()" style="display:none" accept=".csv">
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left"></div>
+                <div class="right">
+                    <input type="button" class="submit" style=" width:15%" value="submit" />
+                </div>
+            </div>
+            <div class="space"></div>
+        </form>
+    </div>
+</body>
+</html>

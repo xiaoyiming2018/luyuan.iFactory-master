@@ -1,0 +1,169 @@
+﻿@{
+    Layout = null;
+    @model Advantech.IFactory.CommonLibrary.material_category
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript" src="~/grafana-UI-frame/script/lib/jquery-3.3.1.min.js"></script>
+    <script>
+        $(function () {
+            $('.submit').click(function () {
+                var line_id = $('#line_id').val();
+                var unit_no = $('#unit_no').val();
+                var type_name = $('#type_name').val();
+                var type_code = $('#type_code').val();
+
+                if (line_id <= 0 || unit_no == "" || type_name == "" || type_code=="") {
+                    if (unit_no == "") {
+                        $("#prompt").text("请选择制程");
+                        $("#prompt").show();
+                    }
+                    else if (line_id <= 0) {
+                        $("#prompt").text("线别不可为空");
+                        $("#prompt").show();
+                    } else if (type_name == "") {
+                        $("#prompt").text("类别名称不可为空");
+                        $("#prompt").show();
+                    } else if (type_code=="") {
+                        $("#prompt").text("类别编码不可为空");
+                        $("#prompt").show();
+                    }
+                    
+                }
+                else {
+                    $("#prompt").hide();
+                    $("#myfrom").submit();
+                }
+
+            });
+        });
+        function getLineList() {
+
+            var unit_no = $('#unit_no option:selected').val();
+            if ( unit_no != "") {
+                $.ajax({
+                    type: "POST",
+                    url: "/Machine/GetLineList",
+                    data: {  unit_no: unit_no },
+                    success: function (msg) {
+                        $('#line_div').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get line");
+                    }
+                });
+            }
+            else {
+                $('#line_id option').remove();
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>
+                @{
+                    if (Model == null)
+                    { <text>新增物料类别</text>}
+                else
+                { <text>编辑物料类别</text>}}
+            </span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="edit_title">
+                @{
+                    if (Model == null)
+                    { <text>新增物料类别</text>}
+                else
+                { <text>编辑物料类别</text>}
+                }
+            </div>
+            <div class="prompt" id="prompt"></div>
+        </div>
+        <form class="form-horizontal" action="/MaterialCategory/EditHandle" method="post" id="myfrom">
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">制程代码</div>
+                <div class="right">
+                    <select class="select" id="unit_no" name="unit_no" onchange="getLineList()">
+                        <option value=""></option>
+                        @{
+                            Advantech.IFactory.CommonLibrary.UnitInfoManager UIM = new Advantech.IFactory.CommonLibrary.UnitInfoManager();
+                            List<Advantech.IFactory.CommonLibrary.unit_info> objUnitList = UIM.SelectAll();
+                            if (objUnitList.Count > 0)
+                            {
+                                for (int i = 0; i < objUnitList.Count; i++)
+                                {
+                                    <!option value="@objUnitList[i].unit_no" @if (Model != null) { if (objUnitList[i].unit_no == Model.unit_no) { <text> selected </text> } }>@objUnitList[i].unit_no</!option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">线别</div>
+                <div class="right" id="line_div">
+                    <select class="select" id="line_id" name="line_id" >
+                        <option value=""></option>
+                        @{
+                            if (Model != null)
+                            {
+                                Advantech.IFactory.CommonLibrary.LineInfoManager LIM = new Advantech.IFactory.CommonLibrary.LineInfoManager();
+                                List<Advantech.IFactory.CommonLibrary.line_info> objLineList = LIM.SelectAll(plant_id: ViewBag.plant_id, unit_no: ViewBag.unit_no);
+                                if (objLineList.Count > 0)
+                                {
+                                    for (int i = 0; i < objLineList.Count; i++)
+                                    {
+                                        <!option value="@objLineList[i].line_id" @if (Model != null) { if (objLineList[i].line_id == Model.line_id) { <text> selected </text> } }>@objLineList[i].line_name_en</!option>
+                                    }
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="space"><input type="hidden" value="@if(ViewBag.id!=null){@ViewBag.id}" id="id" name="id" /></div>
+            <div class="single_div">
+                <div class="left">类别编码</div>
+                <div class="right">
+                    <input type="text" class="text" id="type_code" name="type_code" value="@if(Model!=null){@Model.type_code}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">类别名称</div>
+                <div class="right">
+                    <input type="text" class="text" id="type_name" name="type_name" value="@if(Model!=null){@Model.type_name}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">备注</div>
+                <div class="right">
+                    <input type="text" class="text" id="remark" name="remark" value="@if(Model!=null){@Model.remark}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left"></div>
+                <div class="right">
+                    <input type="button" class="submit" style=" width:15%" value="提交" />
+                </div>
+            </div>
+            <div class="space"></div>
+        </form>
+    </div>
+</body>
+</html>

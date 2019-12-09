@@ -1,0 +1,280 @@
+﻿@{
+    @model List<ErrLogAndCfg>
+    @using iFactory.Op.Common
+    @using Advantech.IFactory.CommonLibrary;
+    @using Advantech.IFactory.Andon;
+}
+
+<script>
+    var count = 0;
+    //重新刷页面
+    function ReloadHtml() {
+        count = 0;
+        window.location.reload(true);
+    }
+    //设置刷新时间
+    window.onload = function setTime() {
+        document.getElementById('defectives_count').focus()
+        refresh();
+        setInterval('refresh()', 5000+randomFrom(500,1000));
+    }
+
+    //获取指定区间范围随机数，包括lowerValue和upperValue
+    function randomFrom(lowerValue,upperValue)
+    {
+        return Math.floor(Math.random() * (upperValue - lowerValue + 1) + lowerValue);
+    }
+    //周期刷新
+    function refresh() {
+        $.ajax({
+            type: "POST",
+            url: "/Andon/Refresh",
+            success: function (msg) {
+                $('#refresh_area').html(msg);
+            },
+            timeout:3000,//超时设置
+            error: function (msg) {
+                //alert("周期刷新失败");
+                ++count;
+                if (count >= 5) {
+                    ReloadHtml();
+                }
+            }
+        });
+    };
+    //按钮触发安灯异常
+    function TriggerExceptionClick(system_tag_code) {
+        var station_id = $('#station_id').val();
+        $.ajax({
+            type: "POST",
+            url: "/Andon/ExceptionHandle",
+            data: {
+                "exception_name": system_tag_code,
+                "station_id": station_id
+            },
+            success: function (msg) {
+            },
+            error: function (msg) {
+                alert("安灯请求失败！");
+            }
+        });
+    };
+    //签到人员弹窗
+    function ArrivalPost(id) {
+        $('#arrival_select_id').val(id);//赋值
+        $('#arrival_post_dialog').dialog({
+            title: "签到人员信息确认",
+            modal: true,
+            width: "400"
+        });
+    };
+    //签到人员提交
+    function ArrivalSubmit() {
+        var id = $('#arrival_select_id').val();//取id
+        var card = $('#card_number').val();    //取卡号
+
+        $.ajax({
+            type: "POST",
+            url: "/Andon/ArrivalPostHandle",
+            data: {
+                "card_number": card,
+                "log_id": id
+            },
+            success: function (msg) {
+                if (msg == "card_info_null") {
+                    alert("卡号未输入，请录入人员卡号信息！");
+                }
+                else if (msg == "card_info_error") {
+                    alert("未查找到该卡号信息人员，请录入正确的人员卡号信息！");
+                }
+                else if (msg == "fail"){
+                    alert("人员签到执行失败！");
+                }
+                else if (msg == "success") {
+                    refresh();
+                }
+            },
+            error: function (msg) {
+                alert("人员签到数据请求失败！");
+            }
+        });
+    };
+    //确认编码弹窗
+    function AckAndon(id, check_arrival) {
+        if (check_arrival != @((int)AckModeEnum.CodeAck)) {//确认代码区域不显示
+                var div = document.getElementById("divErrCode");
+                div.style.display="none";
+        }
+
+        $('#ack_select_id').val(id);//赋值
+        $('#relieve_dialog').dialog({
+            title: "安灯解除确认",
+            modal: true,
+            width: "500",
+        });
+    };
+    //安灯确认提交
+    function AckSubmit() {
+        var id = $('#ack_select_id').val();         //取id
+        var code = $('#exception_code').val();      //取编码
+        var count =  $('#defectives_count').val();  //不良品数量
+        $.ajax({
+            type: "POST",
+            url: "/Andon/AckPostHandle",
+            data: {
+                "error_code": code,
+                "log_id": id,
+                "defectives_count": count,
+            },
+            success: function (msg) {
+                if (msg == "arrival_info_null") {
+                    alert("签到信息为空，请先确认人员签到再确认！");
+                }
+                else if (msg == "code_info_null") {
+                    alert("异常代码为空，请输入编码后再提交！");
+                }
+                else if (msg == "code_not_fount") {
+                    alert("异常代码提交错误，未能查找到该编码！");
+                }
+                else if (msg == "fail") {
+                    alert("异常代码确认失败！");
+                }
+                else if (msg == "success") {
+                    refresh();
+                }
+            },
+            error: function (msg) {
+                alert("异常代码确认数据请求失败！");
+            }
+        });
+            $('#relieve_dialog').dialog("close");
+    };
+    //异常编码和不良品数量模式
+    function InputMod(id) {
+        $('#input_mode').val(id);//赋值
+    };
+
+    //键盘输入异常代码和不良品数量
+    function appContent(self) {
+        var content;// = document.getElementById('actual_num');
+        var id = $('#input_mode').val();//取id
+
+        if (id == null || id=="") {
+            id = "defectives_count";//默认为不良品输入
+        }
+
+        if (id == "exception_code") {
+            content = document.getElementById('exception_code');
+        }
+        else if (id == "defectives_count") {
+            content = document.getElementById('defectives_count');
+        }
+        if (content != null) {
+            if (self.value != "DEL") {
+                content.value += self.value;
+            }
+            else if (self.value == "DEL") {
+                //删除：截取除最后一个字符串 substring
+                content.value = content.value.substring(0, content.value.length - 1);
+            }
+        }
+    };
+
+</script>
+
+@*<div class="head">
+        <div class="title">
+            <text style="font-size:2.5vw;color:#5AC8FA;font-weight:bold">安灯呼叫列表</text>
+            <text style="margin-left:1%;font-size:2.0vw;color:#5AC8FA;font-weight:bold">@ViewBag.station.station_name_en</text>
+        </div>
+    </div>*@
+@if (ViewBag.AndonWebCall == true)
+{
+    <div class="search">
+        <div>
+            @{
+                int count = 0;
+                foreach (var obj in ViewBag.errCfgList)//依据配置动态生成
+                {
+                    if (obj.system_tag_code != SystemTagCodeEnum.machine_time_error.ToString())
+                    {
+                        if (count == 0)
+                        {
+                            <input type="button" style="font-size:2.5vw;margin-left:0%;float:left;width:15%;height:80px" class="form-control" onclick="TriggerExceptionClick('@obj.system_tag_code')" value=@obj.error_name>
+                        }
+                        else
+                        {
+                            <input type="button" style="font-size:2.5vw;margin-left:100px;float:left;width:15%;height:80px" class="form-control" onclick="TriggerExceptionClick('@obj.system_tag_code')" value=@obj.error_name>
+                        }
+                    }
+                    count++;
+                }
+            }
+        </div>
+    </div>
+}
+
+<div class="body" id="refresh_area" name="refresh_area" style="margin-top:0px;margin-bottom:0px;">
+
+</div>
+
+<!--人员签到弹窗-->
+<div id="arrival_post_dialog" title="" style="display: none">
+    <form class="form-horizontal" style="margin-left:1%" id="myfrom" enctype="multipart/form-data">
+    <div class="col-sm-9">
+        <label style="font-size:2.5vw;float:left;margin-right:30px;margin-top:8px" class="col-sm-3 control-label">签到员工卡编号</label>
+        <input type="text" id="card_number" name="card_number" style="margin-left:0px;margin-top:20px;width:90%" class="form-control">
+        <div class="space"></div>
+        <!--id和人名称隐藏-->
+        <input type="text" id="personnel_name" name="personnel_name" style="margin-left:0px;margin-top:5px;display: none" class="form-control">
+        <input type="hidden" name="arrival_select_id" id="arrival_select_id" />
+    </div>
+    <div class="space"></div>
+    <input type="submit" class="" style="width:150px;height:45px;margin-left:55%;font-size:2.5vw;" value="提交" onclick="ArrivalSubmit()" id="Signup">
+    </form>
+</div>
+
+<!--异常代码确认弹窗-->
+<div id="relieve_dialog" title="" style="display: none">
+    <form class="form-horizontal" style="margin-left:1%" id="myfrom" enctype="multipart/form-data">
+        <!--暂存选择的id-->
+        <input type="hidden" name="ack_select_id" id="ack_select_id" />
+        <!--暂存上一次的选择模式-->
+        <input type="hidden" id="input_mode" />
+        <!--异常代码输入区域-->
+        <div id="divErrCode">
+            <label style="font-size:2.5vw;margin-top:5px;width:100%;">异常代码</label>
+            <input type="text" id="exception_code" style="margin-left:0px;margin-top:10px;width:90%" class="form-control" onclick="InputMod(this.id)">
+        </div>
+        <!--不良品数量-->
+        <div id="divCount">
+            <label style="font-size:2.5vw;margin-top:5px;width:100%;">不良品数量</label>
+            <input type="text" id="defectives_count" style="margin-left:0px;margin-top:10px;width:95%;" class="form-control" onclick="InputMod(this.id)">
+        </div>
+        <div class="space"></div>
+        <table style="background-color:whitesmoke" cellspacing="1" cellpadding="1">
+            <tr style="height:60px;background-color:whitesmoke">
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="7" id="num7" onclick="appContent(this)"></td>
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="8" id="num8" onclick="appContent(this)"></td>
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="9" id="num9" onclick="appContent(this)"></td>
+            </tr>
+            <tr style="height:60px;background-color:whitesmoke">
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="4" id="num4" onclick="appContent(this)"></td>
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="5" id="num5" onclick="appContent(this)"></td>
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="6" id="num6" onclick="appContent(this)"></td>
+            </tr>
+            <tr style="height:60px;background-color:whitesmoke">
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="1" id="num1" onclick="appContent(this)"></td>
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="2" id="num2" onclick="appContent(this)"></td>
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="3" id="num3" onclick="appContent(this)"></td>
+            </tr>
+            <tr style="height:60px;background-color:whitesmoke">
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="0" id="num0" onclick="appContent(this)"></td>
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="." id="dian" onclick="appContent(this)"></td>
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="DEL" id="del" onclick="appContent(this)"></td>
+            </tr>
+        </table>
+        <div class="space"></div>
+        <input type="button" style="width:140px;height:60px;margin-left:55%;font-size:35px;border-radius:6px" value="提交" onclick="AckSubmit()" id="Signup">
+    </form>
+</div>

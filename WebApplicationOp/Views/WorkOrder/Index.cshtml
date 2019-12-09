@@ -1,0 +1,239 @@
+﻿@{
+    @model List<Pro_schedule_machine>
+}
+<style>
+    .hbk-class .layui-layer-title {
+        background-color: #FF5722;
+        border: none;
+    }
+    
+    .hbk-class .layui-layer-btn .layui-layer-btn0 {
+        color: black;
+        font-size:18px;
+    }
+
+    .hbk-class .layui-layer-btn .layui-layer-btn1 {
+        color: black;
+        font-size:18px;
+    }
+    .hbk-class .body{
+         background-color:green;
+        color:red;
+        font-size:20px;
+    }
+    
+</style>
+
+<script>
+    var count = 0;
+    //重新刷页面
+    function ReloadHtml() {
+        count = 0;
+        window.location.reload(true);
+    }
+    //工单开始提示
+    function StartProscheduleAlert(id) {
+        if (confirm("确定开始执行工单吗？")) {
+            StartProschedule(id);
+        }
+    }
+    //工单开始
+    function StartProschedule(id) {
+        $.ajax({
+            type: "POST",
+            url: "/WorkOrder/ProScheduleStart",
+            data: {
+                "order_id": id
+            },
+            success: function (msg) {
+                if (msg == "Success") {
+                    //alert("执行开始成功！");
+                    window.location.href = "/WorkOrder/Index";
+                }
+                else if (msg == "Fail") {
+                    alert("执行开始失败！");
+                }
+                else if (msg == "device_order_err") {
+                    alert("选中的订单状态错误或未查找到数据！");
+                }
+                else if (msg == "excute_index_err") {
+                    alert("请前一站先开始执行工单，当前工位才能开始执行！");
+                }
+                else if (msg == "main_order_err") {
+                    alert("主订单查找失败！");
+                }
+                else if (msg == "order_num_err") {
+                    alert("当前执行的订单数量超过限定值！请先结束执行的订单再点击开始");
+                }
+                $('#psTable').html(msg);
+            },
+            error: function (msg) {
+                alert("执行开始系统错误！");
+            }
+        });
+    }
+
+    //工单完成提示
+    function OrderFinishAlert() {
+        if (confirm("确定完成执行工单吗？")) {
+            OrderFinish();
+        }
+    }
+    //工单完成//完成当前正在执行的，只能完成最先开始执行的那个
+    function OrderFinish() {
+        $.ajax({
+            type: "POST",
+            url: "/WorkOrder/WoFinish",
+            data: {
+            },
+            success: function (msg) {
+                if (msg == "Success") {
+                    //alert("执行结束成功！");
+                    window.location.href = "/WorkOrder/Index";
+                }
+                else if (msg == "Fail") {
+                    alert("执行结束失败！");
+                }
+                else if (msg == "system_config_err") {
+                    alert("未查找到系统配置信息！");
+                }
+                else if (msg == "device_order_err") {
+                    alert("选中的订单状态错误或未查找到数据！");
+                }
+                else if (msg == "excute_index_err") {
+                    alert("请前一站先结束工单，当前工位才能结束。最后一站可直接结束所有工单！");
+                }
+                else if (msg == "main_order_err") {
+                    alert("主订单查找失败！");
+                }
+                else if (msg == "order_num_err") {
+                    alert("当前执行的订单数量超过限定值！请先结束执行的订单再点击开始");
+                }
+            },
+            error: function (msg) {
+                alert("执行完成系统错误");
+            }
+        });
+        $('#wo ').empty();
+    }
+    //窗体加载刷新
+    window.onload = function setTime() {
+        refresh();
+        setInterval('refresh()', 5000 + randomFrom(500, 1000));
+    }
+    //获取指定区间范围随机数，包括lowerValue和upperValue
+    function randomFrom(lowerValue, upperValue) {
+        return Math.floor(Math.random() * (upperValue - lowerValue + 1) + lowerValue);
+    }
+    //周期刷新
+    function refresh() {
+
+        $.ajax({
+            type: "POST",
+            url: "/WorkOrder/Refresh",
+            data: {
+            },
+            timeout: 3000,//超时设置
+            success: function (msg) {
+                $('#refresh_area').html(msg);
+            },
+            error: function (msg) {
+                //alert("刷新失败");
+                ++count;
+                if (count >= 5) {
+                    ReloadHtml();
+                }
+            }
+        });
+    };
+    //修改数量
+    function Modify(id, actual_num) {
+        $('#select_id').val(id);
+        $('#actual_num').val(actual_num);
+        $('#my_dialog').dialog({
+            title: "修改实际数量",
+            modal: true,
+            width: "400",
+        });
+    };
+    //修改数量弹窗
+    function DialogSubmit() {
+        var wo_name = $('#wo option:selected').text();
+        var actual_num = $('#actual_num').val();
+        var select_id = $('#select_id').val();
+        $('#actual_num').val(0);
+        $.ajax({
+            type: "POST",
+            url: "/WorkOrder/Edit",
+            data: {
+                //"wo_name": wo_name,
+                "actual_num": actual_num,
+                //"select_id": select_id
+            },
+            success: function (msg) {
+                if (msg == "Success") {
+                    //alert("修改数据成功！");
+                    window.location.href = "/WorkOrder/Index";
+                }
+                else if (msg == "Fail") {
+                    alert("修改数据失败！");
+                }
+                $('#myTable').html(msg);
+            },
+            error: function (msg) {
+                alert("修改数量系统错误！");
+            }
+        });
+        $('#my_dialog').dialog("close");
+    };
+    //键盘输入
+    function appContent(self) {
+        var content = document.getElementById('actual_num');
+        if (self.value != "DEL") {
+            content.value += self.value;
+        }
+        else if (self.value == "DEL") {
+            //删除：截取除最后一个字符串 substring
+            content.value = content.value.substring(0, content.value.length - 1);
+        }
+    };
+</script>
+
+<!--当前执行的工单表格-->
+<div class="body" id="refresh_area" name="refresh_area" style="margin-top:0px;margin-bottom:0px;">
+
+</div>
+<!--修改工单数量弹窗-->
+<div id="my_dialog" title="" style="display: none">
+    <form class="form-horizontal" style="margin-left:1%" id="myfrom" enctype="multipart/form-data">
+        <input type="text" id="actual_num" name="actual_num" value="0" style="margin-left:0px;margin-top:20px;width:90%;text-align:right;font-size:35px" class="form-control" disabled="disabled">
+        <input type="hidden" name="select_id" id="select_id" value="" />
+        <div class="space"></div>
+        <table style="background-color:whitesmoke" cellspacing="1" cellpadding="1">
+            <tr style="height:60px;background-color:whitesmoke">
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="7" id="num7" onclick="appContent(this)"></td>
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="8" id="num8" onclick="appContent(this)"></td>
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="9" id="num9" onclick="appContent(this)"></td>
+            </tr>
+            <tr style="height:60px;background-color:whitesmoke">
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="4" id="num4" onclick="appContent(this)"></td>
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="5" id="num5" onclick="appContent(this)"></td>
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="6" id="num6" onclick="appContent(this)"></td>
+            </tr>
+            <tr style="height:60px;background-color:whitesmoke">
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="1" id="num1" onclick="appContent(this)"></td>
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="2" id="num2" onclick="appContent(this)"></td>
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="3" id="num3" onclick="appContent(this)"></td>
+            </tr>
+            <tr style="height:60px;background-color:whitesmoke">
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="0" id="num0" onclick="appContent(this)"></td>
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="." id="dian" onclick="appContent(this)"></td>
+                <td><input type="button" style="width: 80px;height: 50px;font-size:35px;border-radius:6px;" value="DEL" id="del" onclick="appContent(this)"></td>
+            </tr>
+        </table>
+        <div class="space"></div>
+        <div class="space"></div>
+        <input type="button" style="width:140px;height:60px;margin-left:55%;font-size:35px;border-radius:6px" value="提交" onclick="DialogSubmit()" id="Signup">
+    </form>
+</div>
+

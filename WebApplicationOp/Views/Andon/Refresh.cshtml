@@ -1,0 +1,57 @@
+﻿@{
+    Layout = null;
+    @model List<ErrLogAndCfg>
+    @using iFactory.Op.Common
+    @using Advantech.IFactory.Andon;
+}
+
+<div class="body" id="refresh_area" name="refresh_area" style="margin-top:0px;margin-bottom:0px;">
+    <div id="myTable" name="myTable" style="margin-top:0px;margin-bottom:10px;height:20%">
+        <table cellspacing="1" cellpadding="1" id="psTable" name="psTable">
+            <tr class="color">
+                <td style=" width: 5%">序号</td>
+                <td style=" width: 10%">工位</td>
+                <td style=" width: 15%">异常名称</td>
+                <td style=" width: 15%">发生时间</td>
+                <td style=" width: 10%">持续时间(分钟)</td>
+                <td style=" width: 10%">签到</td>
+                <td style=" width: 10%">解除</td>
+            </tr>
+            @{
+                int index = 1;
+                TimeSpan ts;
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@index</td>
+                        <td>@ViewBag.station.station_name_en</td>
+                        <td>@item.ELog.error_name</td>
+                        <td>@item.ELog.start_time.ToString("yy/MM/dd HH:mm:ss")</td>
+                        @{
+                            ts = DateTime.Now.AddHours(GlobalCfgData.SysTimeZone) - item.ELog.start_time; //计算时间差
+                            <td>@ts.TotalMinutes.ToString().Split('.')[0]</td>
+                        }
+
+                        @if (item.eConfig.check_arrival == (int)ArrivalModeEnum.NoArrival)
+                        {
+                            <td>-</td>
+                        }
+                        else
+                        {
+                            @if (item.ELog.arrival_time > Convert.ToDateTime("2001-01-01 00:00:00"))
+                            {
+                                <td><text style="width:80%">已签到</text></td>
+                            }
+                            else
+                            {
+                                <td><button onclick="ArrivalPost(@item.ELog.id)" style="width:80%;font-size:3vw;color:#055473">签到</button></td>
+                            }
+                        }
+                        <td><button onclick="AckAndon(@item.ELog.id,@item.eConfig.check_ack)" style="width:80%;font-size:3vw;color:#055473">解除</button></td>
+                    </tr>
+                    index++;
+                }
+            }
+        </table>
+    </div>
+</div>

@@ -1,0 +1,89 @@
+﻿@{
+    Layout = null;
+    @model Advantech.IFactory.CommonLibrary.error_type
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript" src="~/grafana-UI-frame/script/lib/jquery-3.3.1.min.js"></script>
+    <script>
+        $(function () {
+            $('.submit').click(function () {
+                var area_name_en = $('#area_name_en').val();
+                if (area_name_en == "") {
+                    $("#prompt").text("Area Name(EN) Can't be empty");
+                    $("#prompt").show();
+                }
+                else {
+                    $("#prompt").hide();
+                    $("#myfrom").submit();
+                }
+
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>
+                @{
+                    if (Model == null)
+                    { <text>新增异常类别</text>}
+                else
+                { <text>编辑异常类别</text>}}
+            </span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="edit_title">
+                @{
+                    if (Model == null)
+                    { <text>新增异常类别</text>}
+                else
+                { <text>编辑异常类别</text>}
+                }
+            </div>
+            <div class="prompt" id="prompt"></div>
+        </div>
+        <form class="form-horizontal" action="/ErrorType/EditHandle" method="post" id="myfrom">
+            <div class="space"><input type="hidden" value="@if(ViewBag.id!=null){@ViewBag.id}" id="id" name="id" /></div>
+            <div class="single_div">
+                <div class="left">类别编码</div>
+                <div class="right">
+                    <input type="text" class="text" id="type_code" name="type_code" value="@if(Model!=null){@Model.type_code}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">类别名称</div>
+                <div class="right">
+                    <input type="text" class="text" id="type_name" name="type_name" value="@if(Model!=null){@Model.type_name}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">备注</div>
+                <div class="right">
+                    <input type="text" class="text" id="remark" name="remark" value="@if(Model!=null){@Model.remark}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left"></div>
+                <div class="right">
+                    <input type="button" class="submit" style=" width:15%" value="提交" />
+                </div>
+            </div>
+            <div class="space"></div>
+        </form>
+    </div>
+</body>
+</html>

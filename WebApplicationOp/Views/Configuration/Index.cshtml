@@ -1,0 +1,351 @@
+﻿@{
+    @model Advantech.IFactory.CommonLibrary.client_config_info
+}
+
+<script>
+    //提交更改
+    function CommitChanges() {
+        var city_id = $('#city_id').val();
+        var plant_id = $('#plant_id').val();
+        var unit_no = $('#unit_no').val();
+        var line_id = $('#line_id').val();
+        var station_id = $('#station_id').val();
+        var machine_code = $('#machine_code').val();
+
+        if (city_id <= 0 || plant_id <= 0 || unit_no == "" || station_id <= 0) {
+            if (city_id <= 0) {
+                $("#prompt").text("请选择城市");
+                $("#prompt").show();
+
+            }
+            else if (plant_id <= 0) {
+                $("#prompt").text("请选择厂区");
+                $("#prompt").show();
+            }
+            else if (unit_no == "") {
+                $("#prompt").text("请选择制程");
+                $("#prompt").show();
+            }
+            else if (station_id <= 0) {
+                $("#prompt").text("请选择站别");
+                $("#prompt").show();
+            }
+        }
+        else {
+            $("#prompt").hide();
+            $.ajax({
+                type: "POST",
+                url: "/Configuration/Submit",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("XSRF-TOKEN",
+                        $('input:hidden[name="__RequestVerificationToken"]').val());
+                },
+                data: { city_id: city_id, plant_id: plant_id, unit_no: unit_no, line_id: line_id, station_id: station_id, machine_code: machine_code },
+                success: function (msg) {
+                    if (msg == "Success") {
+                        //alert("配置成功");
+                        window.location.href = "/WorkOrder/Index";
+                    }
+                    else {
+                        alert("配置失败");
+                    }
+                },
+                error: function (msg) {
+                    alert("配置失败");
+                }
+            });
+        }
+    }
+
+    function getPlantList() {
+
+        var city_id = $('#city_id option:selected').val();
+        if (city_id > 0) {
+            $.ajax({
+                type: "POST",
+                url: "/Configuration/getPlantList",
+                data: { city_id: city_id },
+                success: function (msg) {
+                    $('#plant_div').html(msg);
+                },
+                error: function (msg) {
+                    alert("Failed to get plant");
+                }
+            });
+        }
+        else {
+            $('#plant_id option').remove();
+            $('#unit_no option').remove();
+            $('#line_id option').remove();
+            $('#station_id option').remove();
+            $('#machine_code option').remove();
+        }
+    }
+
+    function getUnitList() {
+
+        var city_id = $('#city_id option:selected').val();
+        var plant_id = $('#plant_id option:selected').val();
+        if (plant_id > 0) {
+            $.ajax({
+                type: "POST",
+                url: "/Configuration/getUnitList",
+                data: { city_id: city_id, plant_id: plant_id },
+                success: function (msg) {
+                    $('#unit_div').html(msg);
+                },
+                error: function (msg) {
+                    alert("Failed to get unit");
+                }
+            });
+        }
+        else {
+            $('#unit_no option').remove();
+            $('#line_id option').remove();
+            $('#station_id option').remove();
+            $('#machine_code option').remove();
+        }
+    }
+
+    function getLineList() {
+
+        var city_id = $('#city_id option:selected').val();
+        var plant_id = $('#plant_id option:selected').val();
+        var unit_no = $('#unit_no option:selected').val();
+        if (unit_no != null && unit_no != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Configuration/getLineList",
+                data: { city_id: city_id, plant_id: plant_id, unit_no: unit_no },
+                success: function (msg) {
+                    $('#line_div').html(msg);
+                },
+                error: function (msg) {
+                    alert("Failed to get line");
+                }
+            });
+        }
+        else {
+            $('#line_id option').remove();
+            $('#station_id option').remove();
+            $('#machine_code option').remove();
+        }
+    }
+
+    function getStationList() {
+        var city_id = $('#city_id option:selected').val();
+        var plant_id = $('#plant_id option:selected').val();
+        var unit_no = $('#unit_no option:selected').val();
+        var line_id = $('#line_id option:selected').val();
+        if (line_id == null) {
+            if (unit_no != null && unit_no != "") {
+                $.ajax({
+                    type: "POST",
+                    url: "/Configuration/getStationList",
+                    data: { city_id: city_id, plant_id: plant_id, unit_no: unit_no },
+                    success: function (msg) {
+                        $('#station_div').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get station");
+                    }
+                });
+            }
+            else {
+                $('#station_id option').remove();
+                $('#machine_code option').remove();
+            }
+        }
+        else {
+            if (line_id > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Configuration/getStationList",
+                    data: { city_id: city_id, plant_id: plant_id, unit_no: unit_no, line_id: line_id },
+                    success: function (msg) {
+                        $('#station_div').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get station");
+                    }
+                });
+            }
+            else {
+                $('#station_id option').remove();
+                $('#machine_code option').remove();
+            }
+        }
+    }
+
+    function getMachineList() {
+
+        var city_id = $('#city_id option:selected').val();
+        var plant_id = $('#plant_id option:selected').val();
+        var unit_no = $('#unit_no option:selected').val();
+        var line_id = $('#line_id option:selected').val();
+        var station_id = $('#station_id option:selected').val();
+        if (station_id > 0) {
+            $.ajax({
+                type: "POST",
+                url: "/Configuration/getMachineList",
+                data: { city_id: city_id, plant_id: plant_id, unit_no: unit_no, line_id: line_id, station_id: station_id },
+                success: function (msg) {
+                    $('#machine_div').html(msg);
+                },
+                error: function (msg) {
+                    alert("Failed to get station");
+                }
+            });
+        }
+        else {
+            $('#machine_code option').remove();
+        }
+    }
+</script>
+
+@*<div class="head">
+        <div class="title">
+            <text style="font-size:larger">当前站位信息配置</text>
+        </div>
+    </div>*@
+@*<form class="form-horizontal" action="/Configuration/Submit" method="post" id="myfrom" name="myfrom">*@
+<div class="single_div">
+    <div class="left">城市：</div>
+    <div class="right">
+        <select class="select" id="city_id" name="city_id" style="font-size:2vw;" onchange="getPlantList()">
+            <option value=""></option>
+            @{
+                Advantech.IFactory.CommonLibrary.MachineInfoManager MIM = new Advantech.IFactory.CommonLibrary.MachineInfoManager();
+                Advantech.IFactory.CommonLibrary.MachineInfoName search = new Advantech.IFactory.CommonLibrary.MachineInfoName();
+                List<Advantech.IFactory.CommonLibrary.MachineInfoName> objList = MIM.SelectAllName(search);
+                if (objList.Count > 0)
+                {
+                    for (int i = 0; i < objList.Count; i++)
+                    {
+                        <!option value="@objList[i].city_id" @if (ViewBag.city_id != null) { if (objList[i].city_id == ViewBag.city_id) { <text> selected </text> } }>
+                        @objList[i].city_name_cn</!option>
+                    }
+                }
+            }
+        </select>
+    </div>
+</div>
+<div class="space"></div>
+<div class="space"></div>
+<div class="single_div">
+    <div class="left">厂别：</div>
+    <div class="right" id="plant_div">
+        <select class="select" id="plant_id" name="plant_id" style="font-size:2vw;" onchange="getUnitList()">
+            <option value=""></option>
+            @{
+                if (ViewBag.PlantList.Count > 0)
+                {
+                    for (int i = 0; i < ViewBag.PlantList.Count; i++)
+                    {
+                        <!option value="@ViewBag.PlantList[i].plant_id" @if (ViewBag.PlantList[i].plant_id == Model.plant_id) { <text> selected </text> }>
+                        @ViewBag.PlantList[i].plant_name_cn</!option>
+                    }
+                }
+            }
+        </select>
+    </div>
+</div>
+<div class="space"></div>
+<div class="space"></div>
+<div class="single_div">
+    <div class="left">制程工序：</div>
+    <div class="right" id="unit_div">
+        <select class="select" id="unit_no" name="unit_no" style="font-size:2vw;" onchange="getLineList();">
+            <option value=""></option>
+            @{
+                if (ViewBag.UnitList.Count > 0)
+                {
+                    for (int i = 0; i < ViewBag.UnitList.Count; i++)
+                    {
+                        <!option value="@ViewBag.UnitList[i].unit_no" @if (ViewBag.UnitList[i].unit_no == Model.unit_no) { <text> selected </text> }>
+                        @ViewBag.UnitList[i].unit_no</!option>
+                    }
+
+                }
+            }
+
+        </select>
+    </div>
+</div>
+<div class="space"></div>
+<div class="space"></div>
+<div class="single_div">
+    <div class="left">线别：</div>
+    <div class="right" id="line_div">
+        <select class="select" id="line_id" name="line_id" style="font-size:2vw;" onchange="getStationList()">
+            <option value=""></option>
+            @{
+                if (ViewBag.LineList.Count > 0)
+                {
+                    for (int i = 0; i < ViewBag.LineList.Count; i++)
+                    {
+                        <!option value="@ViewBag.LineList[i].line_id" @if (ViewBag.LineList[i].line_id == Model.line_id) { <text> selected </text> }>
+                        @ViewBag.LineList[i].line_name_cn</!option>
+                    }
+                }
+            }
+
+        </select>
+    </div>
+</div>
+<div class="space"></div>
+<div class="space"></div>
+<div class="single_div">
+    <div class="left">站位：</div>
+    <div class="right" id="station_div">
+        <select class="select" id="station_id" name="station_id" style="font-size:2vw;" onchange="getMachineList()">
+            <option value=""></option>
+            @{
+                if (ViewBag.StationList.Count > 0)
+                {
+                    for (int i = 0; i < ViewBag.StationList.Count; i++)
+                    {
+                        <!option value="@ViewBag.StationList[i].station_id" @if (ViewBag.StationList[i].station_id == Model.station_id) { <text> selected </text> }>
+                        @ViewBag.StationList[i].station_name_cn</!option>
+                    }
+                }
+            }
+
+        </select>
+    </div>
+</div>
+<div class="space"></div>
+<div class="space"></div>
+<div class="single_div">
+    <div class="left">设备：</div>
+    <div class="right" id="machine_div">
+        <select class="select" id="machine_code" style="font-size:2vw;" name="machine_code">
+            <option value=""></option>
+            @{
+                if (ViewBag.MachineList.Count > 0)
+                {
+                    for (int i = 0; i < ViewBag.MachineList.Count; i++)
+                    {
+                        <!option value="@ViewBag.MachineList[i].machine_code" @if (ViewBag.MachineList[i].machine_code == Model.machine_code) { <text> selected </text> }>
+                        @ViewBag.MachineList[i].machine_name_cn</!option>
+                    }
+                }
+            }
+        </select>
+    </div>
+</div>
+<div class="space"></div>
+<div class="space"></div>
+<div class="single_div">
+    <div class="left"></div>
+    <div class="right">
+        @*@if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+            {*@
+        <input type="button" class="submit" style=" width:18%;font-size:2vw;" value="提交" onclick="CommitChanges()" />
+        @*}
+            else
+            {
+                <input type="button" disabled="disabled" class="submit" style=" width:18%" value="提交" />
+            }*@
+    </div>
+</div>

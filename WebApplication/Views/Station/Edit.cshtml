@@ -1,0 +1,346 @@
+﻿@{
+    Layout = null;
+    @model Advantech.IFactory.CommonLibrary.station_info
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript" src="~/grafana-UI-frame/script/lib/jquery-3.3.1.min.js"></script>
+    <script>
+        $(function () {
+            $('.submit').click(function () {
+             
+                //var station_name = $('#station_name').val();
+                //var id = $('#id').val();
+                 
+                //$("#myfrom").submit();
+                var line_id = $('#line_id').val();
+                var unit_no = $('#unit_no').val();
+                if (line_id == "" || unit_no=="") {
+                    $("#prompt").text("线别或者制程代码不可为空");
+                    $("#prompt").show();
+                }
+                else {
+                    $("#prompt").hide();
+                    $("#myfrom").submit();
+                }
+
+            });
+        });
+        //area选择获取城市列表
+        function getCityList() {
+            var area_id = $('#area_id option:selected').val()
+            if (area_id > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Station/GetCityList",
+                    data: { "area_id": area_id },
+                    success: function (msg) {
+                        $('#city_div').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get city");
+                    }
+                });
+            }
+            else {
+                $('#city_id option').remove();
+            }
+        }
+        //city选择获取车间列表
+        function getPlantList() {
+            var city_id = $('#city_id option:selected').val();
+            if (city_id > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Station/GetPlantList",
+                    data: { "city_id": city_id },
+                    success: function (msg) {
+                        $('#plant_div').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get plant");
+                    }
+                });
+            }
+            else {
+                $('#plant_id option').remove();
+            }
+        }
+        //plant选择获取部门列表
+        function getDeptList() {
+            var plant_id = $('#plant_id option:selected').val();
+    
+            if (plant_id > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Station/GetDeptList",
+                    data:
+                    { "plant_id": plant_id },
+                    success: function (msg) {
+                        $('#dept_div').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get dept");
+                    }
+                });
+            }
+            else {
+                $('#dept_id option').remove();
+            }
+        }
+        //dept选择获取制程列表
+        function getUnitList() {
+            var dept_id = $('#dept_id option:selected').val();
+            
+            if (dept_id > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Station/GetUnitList",
+                    data: { dept_id: dept_id },
+                    success: function (msg) {
+                        $('#unit_div').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get unit");
+                    }
+                });
+            }
+            else {
+                $('#unit_no option').remove();
+            }
+        }
+        //制程选择获取线别列表
+        function getLineList() {
+            var unit_no = $('#unit_no option:selected').val();
+            if (unit_no !="") {
+                $.ajax({
+                    type: "POST",
+                    url: "/Station/GetLineList",
+                    data: { unit_no: unit_no },
+                    success: function (msg) {
+                        $('#line_div').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get line");
+                    }
+                });
+            }
+            else {
+                $('#line_id option').remove();
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>
+                @{ if (Model == null)
+                    { <text>新增站别</text>}
+                else
+                { <text>编辑站别</text>}}
+            </span>
+        </div>
+</div>
+<div class="body">
+    <div class="space"></div>
+    <div class="single_div">
+        <div class="edit_title">
+            @{
+                if (Model == null)
+                { <text>新增站别</text>}
+            else
+            { <text>编辑站别</text>}
+            }
+        </div>
+        <div class="prompt" id="prompt"></div>
+    </div>
+    <form class="form-horizontal" asp-controller="Station" asp-action="EditHandle" method="post" id="myfrom">
+        <input type="text" style="display:none" class="text" id="station_id" name="station_id" value="@if (Model != null){@Model.station_id}" />
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">区域名称</div>
+            <div class="right">
+                <select class="select" id="area_id" name="area_id" onchange="getCityList()">
+                    <option value=""></option>
+                    @{
+                        Advantech.IFactory.CommonLibrary.AreaInfoManager areaInfoManger = new Advantech.IFactory.CommonLibrary.AreaInfoManager();
+                        List<Advantech.IFactory.CommonLibrary.area_info> objList = areaInfoManger.SelectAll();
+                        if (objList.Count > 0)
+                        {
+                            for (int i = 0; i < objList.Count; i++)
+                            {
+                                <!option value="@objList[i].area_id" @if (Model != null) { if (objList[i].area_id == ViewBag.area_id) { <text> selected </text> } }>@objList[i].area_name_cn</!option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">城市名称</div>
+            <div class="right" id="city_div">
+                <select class="select" id="city_id" name="city_id" onchange="getPlantList()">
+                    <option value=""></option>
+                    @{
+                        if (Model != null)
+                        {
+                            Advantech.IFactory.CommonLibrary.CityInfoManager CIM = new Advantech.IFactory.CommonLibrary.CityInfoManager();
+                            List<Advantech.IFactory.CommonLibrary.city_info> objCityList = CIM.SelectAll(ViewBag.area_id);
+                            for (int i = 0; i < objCityList.Count; i++)
+                            {
+                                <!option value="@objCityList[i].city_id" @if (objCityList[i].city_id == ViewBag.city_id) { <text> selected </text> }>@objCityList[i].city_name_cn</!option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">厂区名称</div>
+            <div class="right" id="plant_div">
+                <select class="select" id="plant_id" name="plant_id" onchange="getDeptList()">
+                    <option value=""></option>
+                    @{
+                        if (Model != null)
+                        {
+                            Advantech.IFactory.CommonLibrary.PlantInfoManager PIM = new Advantech.IFactory.CommonLibrary.PlantInfoManager();
+                            List<Advantech.IFactory.CommonLibrary.plant_info> objPlantList = PIM.SelectAll(ViewBag.city_id);
+                            for (int i = 0; i < objPlantList.Count; i++)
+                            {
+                                <!option value="@objPlantList[i].plant_id" @if (objPlantList[i].plant_id == ViewBag.plant_id) { <text> selected </text> }>@objPlantList[i].plant_name_cn</!option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">部门名称</div>
+            <div class="right" id="dept_div">
+                <select class="select" id="dept_id" name="dept_id" onchange="getUnitList()">
+                    <option value=""></option>
+                    @{
+                        if (Model != null)
+                        {
+                            DeptInfoManager deptInfoManager = new DeptInfoManager();
+                            List<Advantech.IFactory.CommonLibrary.dept_info> deptList = deptInfoManager.SelectAll(ViewBag.plant_id);
+                            for (int i = 0; i < deptList.Count; i++)
+                            {
+                                <!option value="@deptList[i].dept_id" @if (deptList[i].dept_id == ViewBag.dept_id) { <text> selected </text> }>@deptList[i].dept_name_cn</!option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">制程编码</div>
+            <div class="right" id="unit_div">
+                <select class="select" id="unit_no" name="unit_no" onchange="getLineList()">
+                    <option value=""></option>
+                    @{
+                        Advantech.IFactory.CommonLibrary.UnitInfoManager UIM = new Advantech.IFactory.CommonLibrary.UnitInfoManager();
+                        List<Advantech.IFactory.CommonLibrary.unit_info> objUnitList = UIM.SelectAll();
+                        if (objUnitList.Count > 0)
+                        {
+                            for (int i = 0; i < objUnitList.Count; i++)
+                            {
+                                <!option value="@objUnitList[i].unit_no" @if (Model != null) { if (objUnitList[i].unit_no == Model.unit_no) { <text> selected</text>}}>@objUnitList[i].unit_name_cn</!option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">线别</div>
+            <div class="right">
+                <select class="select" id="line_id" name="line_id">
+                    <option value=""></option>
+                    @{
+                        Advantech.IFactory.CommonLibrary.LineInfoManager AIM = new Advantech.IFactory.CommonLibrary.LineInfoManager();
+                        List<Advantech.IFactory.CommonLibrary.line_info> objLists = AIM.SelectAll();
+                        if (objLists.Count > 0)
+                        {
+                            for (int i = 0; i < objLists.Count; i++)
+                            {
+                                <!option value="@objLists[i].line_id" @if (Model != null) { if (objLists[i].line_id == Model.line_id) { <text> selected</text>}}>@objLists[i].line_name_cn</!option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">站别（中文简体）</div>
+            <div class="right">
+                <input type="text" class="text" id="station_name_cn" name="station_name_cn" value="@if (Model != null){@Model.station_name_cn}" />
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">站别(英文)</div>
+            <div class="right">
+                <input type="text" class="text" id="station_name_en" name="station_name_en" value="@if (Model != null){@Model.station_name_en}" />
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">站别(中文繁体)</div>
+            <div class="right">
+                <input type="text" class="text" id="station_name_tw " name="station_name_tw" value="@if (Model != null){@Model.station_name_tw}" />
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">状态(A为启用，其他值为禁用)</div>
+            <div class="right">
+                <input type="text" class="text" id="status_no " name="status_no" value="@if (Model != null){@Model.status_no}" />
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">转换系数值</div>
+            <div class="right">
+                <input type="text" class="text" id="convert_multiplier " name="convert_multiplier" value="@if (Model != null){@Model.convert_multiplier}" />
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">是否启用无工单停机</div>
+            <div class="right">
+                <select class="select" id="enable_workorder_stop" name="enable_workorder_stop">
+                    @*<option value="false">不启用</option>
+                    <option value="true">启用</option>*@
+                    <!option value="false" @if (Model != null) { if (Model.enable_workorder_stop == false) { <text> selected</text>}}>不启用</!option>
+                    <!option value="true" @if (Model != null) { if (Model.enable_workorder_stop == true) { <text> selected</text>}}>启用</!option>
+                </select>
+            </div>
+        </div>
+        <div class="single_div">
+            <div class="left"></div>
+            <div class="right">
+                <input type="button" class="submit" style=" width:15%" value="提交" />
+            </div>
+        </div>
+        <div class="space"></div>
+    </form>
+</div>
+</body>
+</html>

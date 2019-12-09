@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html style="background-color: black">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - 物联网系统</title>
+
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/jquery-ui/jquery-ui.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/layer/layer.js"></script>
+
+    <script type="text/javascript" src="~/grafana-UI-frame/lib/jquery-lang-js/jquery-lang.js"></script>
+    <script type="text/javascript" src="~/grafana-UI-frame/lib/dashboardMui.js"></script>
+    <script type="text/javascript" src="~/grafana-UI-frame/lib/layout/jquery.layout-latest.js"></script>
+    <!--导入css-->
+    <link rel="stylesheet" type="text/css" href="~/lib/jquery-ui/jquery-ui.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3" style="margin-left:0px;padding-left:0px">
+            <div class="container" id="header" style="margin-left:0px;padding-left:0px;max-width:none">
+                <div style="display:inline-block;font-size:2.5vw; width: 24vw;color:orange;">物联网系统 @ViewBag.station_name</div>
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="WorkOrder" asp-action="Index" style="font-size:2.2vw; width: 14vw;color:orange;font-weight:bold">工单操作</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Andon" asp-action="Index" style="font-size:2.2vw; width: 14vw;color:orange;font-weight:bold">安灯呼叫</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Configuration" asp-action="Index" style="font-size:2.2vw; width: 14vw;color:orange;font-weight:bold">工位配置</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="User" asp-action="Login" style="font-size:2.2vw; width: 14vw;color:orange;font-weight:bold">用户登录</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    
+    <div id="container" class="ui-layout-center" style="background-color: black">
+        @RenderBody()
+    </div>
+    
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

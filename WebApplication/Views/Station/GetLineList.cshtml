@@ -1,0 +1,17 @@
+﻿@{
+    Layout = null;
+    List<line_info> objList = new List<line_info>();
+    if (ViewBag.unitList != null)
+    {
+        objList = ViewBag.lineList;
+    }
+}
+<select class="select" id="line_id" name="line_id" >
+    <option value=""></option>
+    @{
+        for (int i = 0; i < objList.Count; i++)
+        {
+            <option value="@objList[i].line_name_cn">@objList[i].line_name_cn</option>
+        }
+    }
+</select>

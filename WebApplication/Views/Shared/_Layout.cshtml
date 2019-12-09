@@ -1,0 +1,147 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>物联网系统</title>
+    <meta name="viewport" content="width=device-width,height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <!-- <meta name="viewport" content="width=device-width,height=device-height, initial-scale=1.0, maximum-scale=2.0"/> -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-vw.css?id=0829" />
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/animate.css?id=0829">
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/lib/jquery-ui/jquery-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/lib/layout/layout-default-latest.css" />
+
+    <script type="text/javascript" src="~/grafana-UI-frame/lib/jquery/jquery_1_9.js"></script>
+    <script type="text/javascript" src="~/grafana-UI-frame/lib/jquery-lang-js/jquery-lang.js"></script>
+    <script type="text/javascript" src="~/grafana-UI-frame/lib/dashboardMui.js"></script>
+    <script type="text/javascript" src="~/grafana-UI-frame/lib/jquery-ui/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="~/grafana-UI-frame/lib/layout/jquery.layout-latest.js"></script>
+    <script src="~/grafana-UI-frame/language/system/en.js"></script>
+    <script src="~/grafana-UI-frame/language/system/zh_cn.js"></script>
+    <script src="~/grafana-UI-frame/language/system/zh_tw.js"></script>
+
+    <script src="~/grafana-UI-frame/language/config/en.js?id=0829"></script>
+    <script src="~/grafana-UI-frame/language/config/zh_cn.js?id=0829"></script>
+    <script src="~/grafana-UI-frame/language/config/zh_tw.js?id=0829"></script>
+
+    <script type="text/javascript" src="~/grafana-UI-frame/script/frameSetting.js"></script>
+    <script type="text/javascript" src="~/grafana-UI-frame/script/config.js"></script>
+    <script type="text/javascript" src="~/grafana-UI-frame/script/layoutConfig.js"></script>
+    <script type="text/javascript" src="~/grafana-UI-frame/script/main.js"></script>
+
+    <style>
+    </style>
+
+    <script language="JavaScript">
+        $(document).ready(function () {
+
+            //load grafana and set default option
+            $('#grafanaDashboard').attr('src', '/Proschedule/Index');
+
+            $('#grafanaDashboard').on('load', function () {
+                //4.6
+                //interactDash.main('defaultOption4', undefined);
+                //5.0
+                interactDash.main('defaultOption', undefined);
+            });
+            $('#wp-srp-title').text(config.title.description);
+
+
+            //append menu and bind event
+            var layout = interactDash.getParamFromURL('layout');
+            frameUI.outerFrame(layout, config);
+            frameUI.runConfig('items-list', config);
+            frameUI.bindMenuEvent();
+            frameUI.main(config);
+            //window resize
+            frameUI.windowResize(layout, config);
+
+            function updateNum() {
+                //temp update alarm & notify number
+                var i = $('#wp-almNum').text();
+                var j = $('#wp-noteNum').text();
+                $('#wp-almNum').text(i * 1 + 1 > 100 ? 0 : (i * 1 + 1));
+                $('#wp-noteNum').text(j * 1 + 15 > 999 ? 0 : (j * 1 + 15));
+
+                //update date time
+                dateUtil.updatDate();
+
+                setTimeout(function () {
+                    updateNum();
+                }, 500);
+            }
+            updateNum();
+
+        });
+    </script>
+</head>
+
+<body>
+    <div class="wp-leftFrame">
+        <iframe id="westDashboard" src=""></iframe>
+    </div>
+    <div class="wp-rightFrame">
+        <iframe id="eastDashboard" src=""></iframe>
+    </div>
+    <div class="wp-Lframe">
+        <div id="wp-banner" class="ui-layout-north">
+            <div id="wp-menuToggler" class="wp-menuTogglerClose"></div>
+            <div id="wp-logo">
+                <img src="~/grafana-UI-frame/icon/iFactory_Dashboard.jpg">
+                <span id="wp-srp-title">物联网系统</span>
+            </div>
+
+            <div id="wp-powerBy"></div>
+
+
+            <div id="wp-banner-icon">
+                <div id="wp-zoom"></div>
+                @*<div id="wp-user"></div>
+                <div id="wp-notice">
+                    <div id="wp-noteNum">218</div>
+                </div>
+                <div id="wp-alarm">
+                    <div id="wp-almNum">9</div>
+                </div>*@
+            </div>
+            <div id="wp-curTime">
+                <div id="wp-date">2018/01/01</div>
+                <div id="wp-time">12:00:00</div>
+            </div>
+        </div>
+
+        <div id="wp-menu-swipeRight" class="ui-layout-west">
+            <ul id="items-list"></ul>
+            <ul id="lang-list">
+                <li class="lang-list-title">
+                    <div class="icon-text">
+                        <span>Language</span>
+                    </div>
+                </li>
+                <li class="lang-list-content">
+                    <ul>
+                        <li class="lang-list-file" data-lang="TW">繁體中文</li>
+                        <li class="lang-list-file" data-lang="CH">简体中文</li>
+                        <li class="lang-list-file" data-lang="EN">English</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div id="wp-mainContent" class="ui-layout-center" style=" background-color: #191a1c">
+            @RenderBody()
+        </div>
+
+        <div id="wp-marquee" class="ui-layout-south">
+            <marquee onmouseover="this.stop()" onmouseout="this.start()"></marquee>
+        </div>
+    </div>
+
+
+</body>
+</html>
+
+
+

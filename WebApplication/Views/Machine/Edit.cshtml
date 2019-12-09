@@ -1,0 +1,350 @@
+﻿@{
+    Layout = null;
+    @model Advantech.IFactory.CommonLibrary.MachineInfo
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript" src="~/grafana-UI-frame/script/lib/jquery-3.3.1.min.js"></script>
+    <script>
+        $(function () {
+            $('.submit').click(function () {
+                var machine_code = $('#machine_code').val();
+                var machine_name_en = $('#machine_name_en').val();
+                var status_no = $('#status_no').val();
+                var line_id = $('#line_id option:selected').val()
+                var id = $('#id').val();
+
+                if (machine_code == "" || machine_name_en == "" || status_no == "" || line_id<=0) {
+                    $("#prompt").text("Line,Machine Code,Status No,Machine Name(en) Can't be empty");
+                    $("#prompt").show();
+                }
+                else {
+                    //$.ajax({
+                    //    type: "POST",
+                    //    url: "/Machine/Verification",
+                    //    data: { machine_code: machine_code, id: id },
+                    //    success: function (msg) {
+                    //        if (msg == "Success") {
+                    //            $("#prompt").hide();
+                    //            $("#myfrom").submit();
+                    //        }
+                    //        else {
+                    //            $("#prompt").text("The StationCode has already existed");
+                    //            $("#prompt").show();
+                    //        }
+                    //    },
+                    //    error: function (msg) {
+                    //        $("#prompt").text("Getting data failure");
+                    //        $("#prompt").show();
+                    //    }
+                    //});
+                    $("#myfrom").submit();
+                }
+
+            });
+        });
+        function getCityList() {
+            var area_id = $('#area_id option:selected').val()
+            if (area_id > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Plant/GetCityList",
+                    data: { area_id: area_id },
+                    success: function (msg) {
+                        $('#city_div').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get city");
+                    }
+                });
+            }
+            else {
+                $('#city_id option').remove();
+            }
+        }
+        function getPlantList() {
+
+            var city_id = $('#city_id option:selected').val();
+            if (city_id > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Line/GetPlantList",
+                    data: { city_id: city_id },
+                    success: function (msg) {
+                        $('#plant_div').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get plant");
+                    }
+                });
+            }
+            else {
+                $('#plant_id option').remove();
+            }
+        }
+        function getLineList() {
+
+            var plant_id = $('#plant_id option:selected').val();
+            var unit_no = $('#unit_no option:selected').val();
+            if (plant_id > 0 && unit_no!="") {
+                $.ajax({
+                    type: "POST",
+                    url: "/Machine/GetLineList",
+                    data: { plant_id: plant_id, unit_no: unit_no },
+                    success: function (msg) {
+                        $('#line_div').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get line");
+                    }
+                });
+            }
+            else {
+                $('#line_id option').remove();
+            }
+        }
+        function getStationList() {
+            var line_ids = $('#line_id option:selected').val();
+            if (line_ids != "") {
+                $.ajax({
+                    type: "POST",
+                    url: "/Machine/GetStationList",
+                    data: { line_id: line_ids },
+                    success: function (msg) {
+                        $('#Station_div').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get line");
+                    }
+                });
+            }
+            else {
+                $('#station_id option').remove();
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>
+                @{ if (Model == null)
+                    { <text>新增设备</text>}
+                else
+                { <text>编辑设备</text>}}
+            </span>
+        </div>
+</div>
+<div class="body">
+    <div class="space"></div>
+    <div class="single_div">
+        <div class="edit_title">
+            @{
+                if (Model == null)
+                { <text>新增设备</text>}
+            else
+            { <text>编辑设备</text>}
+            }
+        </div>
+        <div class="prompt" id="prompt"></div>
+    </div>
+    <form class="form-horizontal" action="/Machine/EditHandle" method="post" id="myfrom">
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">区域</div>
+            <div class="right">
+                <select class="select" id="area_id" name="area_id" onchange="getCityList()">
+                    <option value=""></option>
+                    @{
+                        Advantech.IFactory.CommonLibrary.AreaInfoManager AIM = new Advantech.IFactory.CommonLibrary.AreaInfoManager();
+                        List<Advantech.IFactory.CommonLibrary.area_info> objList = AIM.SelectAll();
+                        if (objList.Count > 0)
+                        {
+                            for (int i = 0; i < objList.Count; i++)
+                            {
+                                <!option value="@objList[i].area_id" @if (Model != null) { if (objList[i].area_id == ViewBag.area_id) { <text> selected </text> } }>@objList[i].area_name_cn</!option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">城市</div>
+            <div class="right" id="city_div">
+                <select class="select" id="city_id" name="city_id">
+                    <option value=""></option>
+                    @{
+                        if (Model != null)
+                        {
+                            Advantech.IFactory.CommonLibrary.CityInfoManager CIM = new Advantech.IFactory.CommonLibrary.CityInfoManager();
+                            List<Advantech.IFactory.CommonLibrary.city_info> objCityList = CIM.SelectAll(ViewBag.area_id);
+                            for (int i = 0; i < objCityList.Count; i++)
+                            {
+                                <!option value="@objCityList[i].city_id" @if (objCityList[i].city_id == ViewBag.city_id) { <text> selected </text> }>@objCityList[i].city_name_cn</!option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">厂区</div>
+            <div class="right" id="plant_div">
+                <select class="select" id="plant_id" name="plant_id">
+                    <option value=""></option>
+                    @{
+                        if (Model != null)
+                        {
+                            Advantech.IFactory.CommonLibrary.PlantInfoManager PIM = new Advantech.IFactory.CommonLibrary.PlantInfoManager();
+                            List<Advantech.IFactory.CommonLibrary.plant_info> objPlantList = PIM.SelectAll(ViewBag.city_id);
+                            for (int i = 0; i < objPlantList.Count; i++)
+                            {
+                                <!option value="@objPlantList[i].plant_id" @if (objPlantList[i].plant_id == ViewBag.plant_id) { <text> selected </text> }>@objPlantList[i].plant_name_cn</!option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">制程代码</div>
+            <div class="right">
+                <select class="select" id="unit_no" name="unit_no" onchange="getLineList()">
+                    <option value=""></option>
+                    @{
+                        Advantech.IFactory.CommonLibrary.UnitInfoManager UIM = new Advantech.IFactory.CommonLibrary.UnitInfoManager();
+                        List<Advantech.IFactory.CommonLibrary.unit_info> objUnitList = UIM.SelectAll();
+                        if (objUnitList.Count > 0)
+                        {
+                            for (int i = 0; i < objUnitList.Count; i++)
+                            {
+                                <!option value="@objUnitList[i].unit_no" @if (Model != null) { if (objUnitList[i].unit_no == Model.unit_no) { <text> selected </text> } }>@objUnitList[i].unit_no</!option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">线别</div>
+            <div class="right" id="line_div">
+                <select class="select" id="line_id" name="line_id" >
+                    <option value=""></option>
+                    @{
+                        if (Model != null)
+                        {
+                            Advantech.IFactory.CommonLibrary.LineInfoManager LIM = new Advantech.IFactory.CommonLibrary.LineInfoManager();
+                            List<Advantech.IFactory.CommonLibrary.line_info> objLineList = LIM.SelectAll(plant_id: ViewBag.plant_id, unit_no: ViewBag.unit_no);
+                            if (objLineList.Count > 0)
+                            {
+                                for (int i = 0; i < objLineList.Count; i++)
+                                {
+                                    <!option value="@objLineList[i].line_id" @if (Model != null) { if (objLineList[i].line_id == Model.line_id) { <text> selected </text> } }>@objLineList[i].line_name_cn</!option>
+                                }
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">站别</div>
+            <div class="right" id="Station_div">
+                <select class="select" id="station_id" name="station_id">
+                    <option value=""></option>
+                    @{
+                        if (Model != null)
+                        {
+                            Advantech.IFactory.CommonLibrary.StationManager SM = new Advantech.IFactory.CommonLibrary.StationManager();
+                            List<Advantech.IFactory.CommonLibrary.station_info> objsList = SM.SelectAll();
+                            if (objsList.Count > 0)
+                            {
+                                for (int i = 0; i < objsList.Count; i++)
+                                {
+                                <!option value="@objsList[i].station_id" @if (Model != null) { if (objsList[i].station_id == Model.station_id) { <text> selected </text> } }>@objsList[i].station_name_cn</!option>
+                                }
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="space"><input type="hidden" value="@if(ViewBag.id!=null){@ViewBag.id}" id="id" name="id" /></div>
+        <div class="single_div">
+            <div class="left">设备编号</div>
+            <div class="right">
+                <input type="text" class="text" id="machine_code" name="machine_code" value="@if (Model != null){@Model.machine_code}" />
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">设备名称(英文)</div>
+            <div class="right">
+                <input type="text" class="text" id="machine_name_en" name="machine_name_en" value="@if (Model != null){@Model.machine_name_en}" />
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">设备名称(简体中文)</div>
+            <div class="right">
+                <input type="text" class="text" id="machine_name_cn" name="machine_name_cn" value="@if (Model != null){@Model.machine_name_cn}" />
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">设备名称(繁体中文)</div>
+            <div class="right">
+                <input type="text" class="text" id="machine_name_tw" name="machine_name_tw" value="@if (Model != null){@Model.machine_name_tw}" />
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">站别开启状态</div>
+            <div class="right">
+                <select class="select" id="status_no" name="status_no">
+                    <!option value=""></!option>
+                    <!option value="A" @if (Model != null) { if (Model.status_no == "A") { <text> selected </text> } }>Run</!option>
+                    <!option value="S" @if (Model != null) { if (Model.status_no == "S") { <text> selected </text> } }>Stop</!option>
+                </select>
+            </div>
+        </div>
+
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">是否设置休息优先</div>
+            <div class="right">
+                <select class="select" id="set_up" name="set_up">
+                    <!option value="0" @if (Model != null) { if (Model.set_up == 0) { <text> selected </text> } }></!option>
+                    <!option value="1" @if (Model != null) { if (Model.set_up == 1) { <text> selected </text> } }>休息优先</!option>
+                    <!option value="2" @if (Model != null) { if (Model.set_up == 2) { <text> selected </text> } }>运行优先</!option>
+                </select>
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left"></div>
+            <div class="right">
+                <input type="button" class="submit" style=" width:15%" value="提交" />
+            </div>
+        </div>
+        <div class="space"></div>
+    </form>
+</div>
+</body>
+</html>

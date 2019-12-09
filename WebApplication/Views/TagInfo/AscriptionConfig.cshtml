@@ -1,0 +1,321 @@
+﻿@{
+    Layout = null;
+    @model List<Advantech.IFactory.CommonLibrary.area_info>
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript" src="~/grafana-UI-frame/script/lib/jquery-3.3.1.min.js"></script>
+    <script>
+        function jump() {
+            window.location.href = "../TagInfo";
+        }
+        $("select").each(function (i, n) {
+            var options = "";
+            $(n).find("option").each(function (j, m) {
+                if (options.indexOf($(m)[0].outerHTML) == -1) {
+                    options += $(m)[0].outerHTML;
+                }
+            });
+            $(n).html(options);
+        });
+
+        function getCityList() {
+            var area_id = $('#area_id option:selected').val()
+            if (area_id > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/TagInfo/GetCityList",
+                    data: { "area_id": area_id },
+                    success: function (msg) {
+                        $('#city_id').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get city");
+                    }
+                });
+            }
+            else {
+                $('#city_id option').remove();
+                $('#plant_id option').remove();
+                $('#unit_id option').remove();
+                $('#dept_id option').remove();
+                $('#line_id option').remove();
+                $('#station_id option').remove();
+                $('#machine_id option').remove();
+            }
+        }
+        function getPlantList() {
+
+            var city_id = $('#city_id option:selected').val();
+            if (city_id > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/TagInfo/GetPlantList",
+                    data: { "city_id": city_id },
+                    success: function (msg) {
+                        $('#plant_id').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get plant");
+                    }
+                });
+            }
+            else {
+                $('#plant_id option').remove();
+                $('#unit_id option').remove();
+                $('#dept_id option').remove();
+                $('#line_id option').remove();
+                $('#station_id option').remove();
+                $('#machine_id option').remove();
+            }
+        }
+        function getUnitList() {
+            var plant_id = $('#plant_id option:selected').val();
+            if (plant_id > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/TagInfo/GetUnitList",
+                    data: { "plant_id": plant_id },
+                    success: function (msg) {
+                        $('#unit_id').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get unit");
+                    }
+                });
+            }
+            else {
+                $('#unit_id option').remove();
+                $('#dept_id option').remove();
+                $('#line_id option').remove();
+                $('#station_id option').remove();
+                $('#machine_id option').remove();
+            }
+        }
+        function getDeptList() {
+            var unit_id = $('#unit_id option:selected').val();
+            if (unit_id > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/TagInfo/GetDeptList",
+                    data: { "unit_id": unit_id },
+                    success: function (msg) {
+                        $('#dept_id').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get Dept");
+                    }
+                });
+            }
+            else {
+                $('#dept_id option').remove();
+                $('#line_id option').remove();
+                $('#station_id option').remove();
+                $('#machine_id option').remove();
+            }
+        }
+        function getLineList() {
+            var dept_id = $('#dept_id option:selected').val();
+            if (dept_id > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/TagInfo/GetLineList",
+                    data: { "dept_id": dept_id },
+                    success: function (msg) {
+                        $('#line_id').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get Line");
+                    }
+                });
+            }
+            else {
+                $('#line_id option').remove();
+                $('#station_id option').remove();
+                $('#machine_id option').remove();
+            }
+        }
+
+        function getStationList() {
+            var line_id = $('#line_id option:selected').val();
+            if (line_id > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/TagInfo/GetStationList",
+                    data: { "line_id": line_id },
+                    success: function (msg) {
+                        $('#station_id').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get Station");
+                    }
+                });
+            }
+            else {
+                $('#station_id option').remove();
+                $('#machine_id option').remove();
+            }
+        }
+
+        function getMachineList() {
+            var station_id = $('#station_id option:selected').val();
+            if (station_id > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/TagInfo/GetMachineList",
+                    data: { "station_id": station_id },
+                    success: function (msg) {
+                        $('#machine_id').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get Machine");
+                    }
+                });
+            }
+            else {
+                $('#machine_id option').remove();
+            }
+        }
+
+    </script>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            <text>标签关联区域设定</text>
+        </div>
+    </div>
+    <div class="content-wrap">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="space"></div>
+                        <form class="form-horizontal" action="../TagType/EditHandle" + style="margin-left:5%;" method="post" id="myfrom" enctype="multipart/form-data">
+                            <div class="form-group col-sm-12"></div>
+                            <div class="form-group">
+                                <label for="inputUserName" class="col-sm-3 control-label">区域</label>
+                                <div class="col-sm-9">
+                                    <select id="area_id" name="area_id" onchange="getCityList()" class="form-control" style="width:52%">
+                                        <option value=""></option>
+                                        @{
+                                            foreach (var items in Model)
+                                            {
+                                                <option value=@items.area_id>@items.area_name_cn</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            @{
+                                if (ViewBag.ascriptionIndex > 1)
+                                {
+                                    <div class="space"></div>
+                                    <div class="form-group">
+                                        <label for="inputUserName" class="col-sm-3 control-label">城市</label>
+                                        <div class="col-sm-9">
+                                            <select id="city_id" name="city_id" onchange="getPlantList()" class="form-control" style="width:52%">
+                                                
+                                            </select>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            @{
+                                if (ViewBag.ascriptionIndex > 2)
+                                {
+                                    <div class="space"></div>
+                                    <div class="form-group">
+                                        <label for="inputEmail3" class="col-sm-3 control-label">厂别</label>
+                                        <div class="col-sm-9">
+                                            <select id="plant_id" name="plant_id" onchange="getUnitList()" class="form-control" style="width:52%"></select>
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                            @{
+                                if (ViewBag.ascriptionIndex > 3)
+                                {
+                                    <div class="space"></div>
+                                    <div class="form-group">
+                                        <label for="inputPassword3" class="col-sm-3 control-label">制程</label>
+                                        <div class="col-sm-9">
+                                            <select id="unit_id" name="unit_id" onchange="getDeptList()" class="form-control" style="width:52%"></select>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            @{
+                                if (ViewBag.ascriptionIndex > 4)
+                                {
+                                    <div class="space"></div>
+                                    <div class="form-group">
+                                        <label for="inputPassword3" class="col-sm-3 control-label">部门</label>
+                                        <div class="col-sm-9">
+                                            <select id="dept_id" name="dept_id" onchange="getLineList()" class="form-control" style="width:52%"></select>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            @{
+                                if (ViewBag.ascriptionIndex > 5)
+                                {
+                                    <div class="space"></div>
+                                    <div class="form-group">
+                                        <label for="inputPassword3" class="col-sm-3 control-label">线别</label>
+                                        <div class="col-sm-9">
+                                            <select id="line_id" name="line_id" onchange="getStationList()" class="form-control" style="width:52%"></select>
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                            @{
+                                if (ViewBag.ascriptionIndex > 6)
+                                {
+                                    <div class="space"></div>
+                                    <div class="form-group">
+                                        <label for="inputPassword3" class="col-sm-3 control-label">站位</label>
+                                        <div class="col-sm-9">
+                                            <select id="station_id" name="station_id" onchange="getMachineList()" class="form-control" style="width:52%"></select>
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                            @{
+                                if (ViewBag.ascriptionIndex > 7 )
+                                {
+                                    <div class="space"></div>
+                                    <div class="form-group">
+                                        <label for="inputPassword3" class="col-sm-3 control-label">设备</label>
+                                        <div class="col-sm-9">
+                                            <select id="machine_id" name="machine_id"  class="form-control" style="width:52%"></select>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            <div class="space"></div>
+                            <div class="">
+                                <div>
+                                    <div style="margin-left:32%">
+                                        <input type="submit" class="" style="width:100px;height:30px" id="Signup">
+                                        <input type="button" class="" style="margin-left:5%; width:100px;height:30px" value="取消" onclick="jump()" id="Cancel">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

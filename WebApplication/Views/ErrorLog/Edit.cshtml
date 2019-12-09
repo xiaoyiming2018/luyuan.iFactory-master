@@ -1,0 +1,218 @@
+﻿@{
+    Layout = null;
+    @model Advantech.IFactory.CommonLibrary.error_log
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript" src="~/grafana-UI-frame/script/lib/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="~/My97DatePicker/WdatePicker.js"></script>
+    <script  type="text/javascript">
+        $(function () {
+            $('.submit').click(function () {
+                var area_name_en = $('#area_name_en').val();
+                if (area_name_en == "") {
+                    $("#prompt").text("Area Name(EN) Can't be empty");
+                    $("#prompt").show();
+                }
+                else {
+                    $("#prompt").hide();
+                    $("#myfrom").submit();
+                }
+
+            });
+        });
+        //请求详细的异常类别
+        function GetErrorDetails() {
+
+            var error_id = $('#error_id option:selected').val();
+            if (error_id > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/ErrorLog/GetErrorDetails",
+                    data: { "type_id": error_id },
+                    success: function (msg) {
+                        $('#details_div').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get ErroeDetails");
+                    }
+                });
+            }
+            else {
+                $('#error_type_id option').remove();
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>异常信息维护</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" asp-controller="ErrorLog" asp-action="EditHandle" method="post" id="myfrom">
+            <div class="space">
+                <input type="hidden" value="@if(ViewBag.id!=null){@ViewBag.id}" id="id" name="id" />
+            </div>
+            <input type="hidden" value="@if(Model!=null){@Model.system_tag_code}" id="system_tag_code" name="system_tag_code" />
+            <input type="hidden" value="@if(Model!=null){@Model.line_id}" id="line_id" name="line_id" />
+            <input type="hidden" value="@if(Model!=null){@Model.arrival_person_id}" id="arrival_person_id" name="arrival_person_id" />
+            <input type="hidden" value="@if(Model!=null){@Model.arrival_time}" id="arrival_time" name="arrival_time" />
+            <input type="hidden" value="@if(Model!=null){@Model.station_id}" id="station_id" name="station_id" />
+            <input type="hidden" value="@if(Model!=null){@Model.ack_person_id}" id="ack_person_id" name="ack_person_id" />
+
+            <div class="single_div">
+                <div class="left">异常名称(不可编辑)</div>
+                <div class="right">
+                    <input type="text" class="text" readonly="readonly" id="error_name" name="error_name" value="@if(Model!=null){@Model.error_name}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">发生时间(不可编辑)</div>
+                <div class="right">
+                    <input type="text" class="text" readonly="readonly" id="start_time" name="start_time" value="@if(Model!=null){@Model.start_time.ToString("yyyy/MM/dd HH:mm:ss")}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">解除时间(不可编辑)</div>
+                <div class="right">
+                    <input type="text" class="text" readonly="readonly" id="release_time" name="release_time" value="@if(Model!=null){@Model.release_time.ToString("yyyy/MM/dd HH:mm:ss")}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">设备编码(不可编辑)</div>
+                <div class="right">
+                    <input type="text" class="text" readonly="readonly" id="machine_code" name="machine_code" value="@if(Model!=null){@Model.machine_code}" />
+                </div>
+            </div>
+
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">当时生产机种(不可编辑)</div>
+                <div class="right">
+                    <input type="text" class="text" readonly="readonly" id="pn" name="pn" value="@if(Model!=null){@Model.pn}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">当时生产工单(不可编辑)</div>
+                <div class="right">
+                    <input type="text" class="text" readonly="readonly" id="work_order" name="work_order" value="@if(Model!=null){@Model.work_order}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">原因类别信息</div>
+                <div class="right">
+                    <select class="select" id="error_id" name="error_id" onchange="GetErrorDetails()">
+                        <option value=""></option>
+                        @{
+                            ErrorTypeManager ETM = new ErrorTypeManager();
+                            List<error_type> objList = ETM.SelectAll();
+                            if (objList.Count > 0)
+                            {
+                                for (int i = 0; i < objList.Count; i++)
+                                {
+                                    <option value="@objList[i].id">@objList[i].type_name</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">原因明细信息</div>
+                <div class="right" id="details_div">
+                    <select class="select" id="error_type_id" name="error_type_id">
+                        <option value=""></option>
+                        @{
+                            ErrorTypeDetailsManager ETDM = new ErrorTypeDetailsManager();
+                            List<error_type_details> detailList = ETDM.SelectAll();
+                            if (detailList.Count > 0)
+                            {
+                                for (int i = 0; i < detailList.Count; i++)
+                                {
+                                    <!option value="@detailList[i].id" @if (Model != null) { if (detailList[i].id == Model.error_type_id) { <text> selected </text> } }>@detailList[i].code_name_cn</!option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">停机时间(分钟)</div>
+                <div class="right">
+                    <input type="text" class="text" id="downtime_min" name="downtime_min" value="@if(Model!=null){@Model.downtime_min}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">不良数量</div>
+                <div class="right">
+                    <input type="text" class="text" id="defectives_count" name="defectives_count" value="" />
+                </div>
+            </div>
+
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">发生问题描述</div>
+                <div class="right">
+                    <input type="text" class="text" id="quality_description" name="quality_description" value="" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">改进计划</div>
+                <div class="right">
+                    <input type="text" class="text" id="improve_plan" name="improve_plan" value="" />
+                </div>
+            </div>
+
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">改进完成日期</div>
+                <div class="right">
+                    <input type="text" class="text" id="plan_date" name="plan_date" value="" onclick="WdatePicker({ skin: 'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss' })" />
+                </div>
+            </div>
+
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">责任人员</div>
+                <div class="right">
+                    <input type="text" class="text" id="responsible_person" name="responsible_person" value="" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">备注信息</div>
+                <div class="right">
+                    <input type="text" class="text" id="remark" name="remark" value="@if(Model!=null){@Model.remark}" />
+                </div>
+            </div>
+
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left"></div>
+                <div class="right">
+                    <input type="button" class="submit" style=" width:15%" value="提交" />
+                </div>
+            </div>
+            <div class="space"></div>
+        </form>
+    </div>
+</body>
+</html>

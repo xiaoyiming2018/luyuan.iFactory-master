@@ -1,0 +1,118 @@
+﻿@{
+    Layout = null;
+    @model Advantech.IFactory.CommonLibrary.UtilizationRateFormula
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript" src="~/grafana-UI-frame/script/lib/jquery-3.3.1.min.js"></script>
+    <script>
+        $(function () {
+            $('.submit').click(function () {
+                var run_time_formula = $('#run_time_formula').val();
+                var error_time_formula = $('#error_time_formula').val();
+                var others_time_formula = $('#others_time_formula').val();
+                var boot_time_formula = $('#boot_time_formula').val();
+
+                var id = $('#id').val();
+
+                if (run_time_formula == "" || error_time_formula == "" || others_time_formula == "") {
+                    $("#prompt").text("公式不能为空");
+                    $("#prompt").show();
+                }
+                else {
+                    $.ajax({
+                        type: "POST",
+                        url: "/UtilizationRateFormula/Verification",
+                        data: { run_time_formula: run_time_formula, error_time_formula: error_time_formula, others_time_formula: others_time_formula, boot_time_formula: boot_time_formula, id: id },
+                        success: function (msg) {
+                            if (msg == "Success") {
+                                $("#prompt").hide();
+                                $("#myfrom").submit();
+                            }
+                            else {
+                                $("#prompt").text(msg + "：错误");
+                                $("#prompt").show();
+                            }
+                        },
+                        error: function (msg) {
+                            $("#prompt").text("获取数据异常");
+                            $("#prompt").show();
+                        }
+                    });
+                }
+
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            <div class="title">
+                主页>配置><span>稼动率公式</span>
+            </div>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space" style=" display:block"></div>
+        <div class="single_div">
+            <div class="edit_title">
+               编辑稼动率公式
+            </div>
+            <div class="prompt" id="prompt" style="display:block">公式中的参数必须为类别名称为Utilization或Error的系统编码且以$开头，例如：($machine_running+$workorder_change)/100</div>
+        </div>
+        <form class="form-horizontal" action="/UtilizationRateFormula/EditHandle" method="post" id="myfrom">
+            <div class="space"><input type="hidden" value="@if(ViewBag.id!=null){@ViewBag.id}" id="id" name="id" /></div>
+            <div class="single_div">
+                <div class="left">运行时间公式</div>
+                <div class="right">
+                    <input type="text" class="text" id="run_time_formula" name="run_time_formula" value="@if(Model!=null){@Model.run_time_formula}" placeholder="Can not be empty" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">异常时间公式</div>
+                <div class="right">
+                    <input type="text" class="text" id="error_time_formula" name="error_time_formula" value="@if(Model!=null){@Model.error_time_formula}" placeholder="Can not be empty" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">其他时间公式</div>
+                <div class="right">
+                    <input type="text" class="text" id="others_time_formula" name="others_time_formula" value="@if(Model!=null){@Model.others_time_formula}" placeholder="Can not be empty" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">开机时间公式</div>
+                <div class="right">
+                    <input type="text" class="text" id="boot_time_formula" name="boot_time_formula" value="@if(Model!=null){@Model.boot_time_formula}" placeholder='It can be empty, and the BootTime is 24 hours.' />
+                </div>
+            </div>
+            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Operator)
+            {
+                <div class="space"></div>
+                <div class="single_div">
+                    <div class="left"></div>
+                    <div class="right">
+                        <input type="button" class="submit" style=" width:15%" value="提交" />
+                    </div>
+                </div>
+            }
+            <div class="space"></div>
+        </form>
+    </div>
+</body>
+</html>
+
+
+
+
+

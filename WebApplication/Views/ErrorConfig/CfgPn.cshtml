@@ -1,0 +1,37 @@
+﻿@{
+    Layout = null;
+    @model List<error_config_pn>
+    @using Advantech.IFactory.Andon;
+}
+<!DOCTYPE html>
+<div class="body" id="pn_area" name="pn_area" style="margin-top:0px;margin-bottom:0px;">
+    <!--机种配置列表-->
+    <table id="tab" cellspacing="1" cellpadding="1">
+        <tr class="color">
+            <td style=" width:10%">编号</td>
+            <td style=" width:15%">机种型号</td>
+            <td style=" width:15%">描述</td>
+            <td style=" width:15%">删除</td>
+        </tr>
+        @{
+            int index = 1;
+
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@index</td>
+                    <td>@item.part_num</td>
+                    <td>@item.description</td>
+                    <td>
+                        <a href="#" onclick="DelCfgPns(@item.id,@item.error_config_id)">删除</a>
+                    </td>
+
+                </tr>
+                index++;
+            }
+        }
+    </table>
+</Div>
+
+
+

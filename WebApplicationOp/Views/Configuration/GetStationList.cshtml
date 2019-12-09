@@ -1,0 +1,12 @@
+﻿@{
+    Layout = null;
+}
+<select class="select" id="station_id" name="station_id" style="font-size:2vw;" onchange="getMachineList()">
+    <option value=""></option>
+    @{
+        for (int i = 0; i < ViewBag.stationList.Count; i++)
+        {
+            <option value="@ViewBag.stationList[i].station_id">@ViewBag.stationList[i].station_name_cn</option>
+        }
+    }
+</select>

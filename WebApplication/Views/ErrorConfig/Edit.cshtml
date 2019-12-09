@@ -1,0 +1,547 @@
+﻿@{
+    Layout = null;
+    @model error_config
+    @using Advantech.IFactory.Andon;
+}
+
+<!DOCTYPE html>
+
+<html style="background:#191A1C">
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <link rel="stylesheet" href="~/grafana-UI-frame/style/bootstrap.min.css">
+    <style>
+        .btnstyle{
+            background:rgb(5,84,115);
+            color:#fff;
+            text-align:center;
+            height:40px;
+            line-height:40px;
+            display:inline-block;
+            padding:0 20px;
+            cursor:pointer
+        }
+    </style>
+    <script type="text/javascript" src="~/grafana-UI-frame/script/lib/jquery-3.3.1.min.js"></script>
+    <script src="~/grafana-UI-frame/script/lib/bootstrap.min.js"></script>
+
+    <script>
+        //窗体加载
+        window.onload = function load() {
+            LoadCfgPersons(@ViewBag.id);//加载人员列表
+            LoadCfgPns(@ViewBag.id);//加载机种列表
+        };
+        //配置人员加载请求
+        function LoadCfgPersons(config_id) {
+            $.ajax({
+                type: "POST",
+                url: "/ErrorConfig/GetErrCfgPersons",
+                data: {"config_id":config_id
+                },
+                success: function (msg) {
+                    $('#person_area').html(msg);
+                },
+                timeout:3000,//超时设置
+                error: function (msg) {
+                    //alert("刷新失败");
+                }
+            });
+        };
+        //增加配置人员
+        function AddCfgPersons() {
+
+            var error_config_id = $('#id').val();
+            var class_no = $('#class_no').val();
+            var person_id = $('#person_id').val();
+            var person_level = $('#person_level').val();
+            if (person_id > 0 || person_level > 0)
+            {
+                $.ajax({
+                    type: "POST",
+                    url: "/ErrorConfig/AddErrCfgPersons",
+                    data: {
+                        "config_id": error_config_id,
+                        "person_id": person_id,
+                        "class_no": class_no,
+                        "person_level": person_level
+                    },
+                    success: function (msg) {
+                        if (msg =="fail") {
+                            alert("添加失败！");
+                        }
+                        else if (msg =="person_error") {
+                            alert("人员已经存在，请不要重复添加！");
+                        }
+                        else {
+                            $('#person_area').html(msg);
+                        }
+                    },
+                    error: function (msg) {
+                        alert("添加失败");
+                    }
+                });
+            }
+        };
+        //删除配置人员
+        function DelCfgPersons(id, config_id) {
+            if (confirm("确定删除数据？")) {
+                $.ajax({
+                    type: "POST",
+                    url: "/ErrorConfig/DelErrCfgPersons",
+                    data: {
+                        "id":id,
+                        "config_id": config_id
+                    },
+                    success: function (msg) {
+                        if (msg == "fail") {
+                            alert("删除失败！");
+                        } else {
+                            $('#person_area').html(msg);
+                        }
+                    },
+                    timeout: 3000,//超时设置
+                    error: function (msg) {
+                        //alert("刷新失败");
+                    }
+                });
+            }
+        };
+        //加载机种清单
+        function LoadCfgPns(config_id) {
+            $.ajax({
+                type: "POST",
+                url: "/ErrorConfig/GetErrCfgPns",
+                data: {"config_id":config_id
+                },
+                success: function (msg) {
+                    $('#pn_area').html(msg);
+                },
+                timeout:3000,//超时设置
+                error: function (msg) {
+                    //alert("刷新失败");
+                }
+            });
+        };
+        //提交机种
+        function AddCfgPns()
+        {
+            var error_config_id = $('#id').val();
+            var class_no = $('#class_no').val();
+            var part_num = $('#part_num').val();
+            var descriptionPN = $('#descriptionPN').val();
+            if (part_num == "" ) {
+                $("#prompt").text("机种不可为空");
+                $("#prompt").show();
+            }
+            else
+            {
+                $.ajax({
+                    type: "POST",
+                    url: "/ErrorConfig/AddErrCfgPN",
+                    data: {
+                        "config_id": error_config_id,
+                        "part_num": part_num,
+                        //"class_no": class_no,
+                        "description": descriptionPN
+                    },
+                    success: function (msg) {
+                        if (msg =="fail") {
+                            alert("添加失败！");
+                        }
+                        else if (msg == "pn_error")
+                        {
+                            alert("机种已经存在，请不要重复添加！");
+                        }
+                        else {
+                            $('#pn_area').html(msg);
+                        }
+                    },
+                    error: function (msg) {
+                        alert("添加失败");
+                    }
+                });
+            }
+        };
+        //删除机种
+        function DelCfgPns(id, config_id)
+        {
+            if (confirm("确定删除数据？")) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/ErrorConfig/DelErrCfgPN",
+                        data: {
+                            "id": id,
+                            "config_id": config_id
+                        },
+                        success: function (msg) {
+                            if (msg == "fail") {
+                                alert("删除失败！");
+                            } else {
+                                $('#pn_area').html(msg);
+                            }
+                        },
+                        error: function (msg) {
+                            alert("删除失败");
+                        }
+                    });
+                }
+        };
+
+        $(function () {
+            $('.submit').click(function () {
+                var area_name_en = $('#area_name_en').val();
+                if (area_name_en == "") {
+                    $("#prompt").text("Area Name(EN) Can't be empty");
+                    $("#prompt").show();
+                }
+                else {
+                    $("#prompt").hide();
+                    $("#myfrom").submit();
+                }
+            });
+        });
+        function getvalue() {
+            var name_cn = $('#system_tag_code').val();
+            var cns = name_cn.split("+")[1];
+            document.getElementById("error_name").value = cns;
+
+        }
+        
+        function deleteAlert(url) {
+            if (confirm("确定删除数据？")) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</head>
+<body style="font-size:0.936vw">
+    <div class="head">
+        <div class="title">
+            主页>安灯><span>
+            @{
+              if (Model == null)
+              { <text>新增异常配置</text>}
+              else
+              { <text>编辑异常配置</text>}
+            }</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        
+        <form class="form-horizontal" action="/ErrorConfig/EditHandle" method="post" id="myfrom">
+            <ul id="myTab" class="nav nav-tabs">
+                <li class="active">
+                    <a href="#homes" data-toggle="tab">
+                        基础参数
+                    </a>
+                </li>
+                <li>
+                    <a href="#ioss" data-toggle="tab">
+                        签到及人员设置
+                    </a>
+                </li>
+            </ul>
+            <input type="hidden" value="@if(ViewBag.id!=null){@ViewBag.id}" id="id" name="id" />
+            <div id="myTabContent" class="tab-content">
+                <div class="tab-pane fade in active" id="homes">
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">制程代码</div>
+                        <div class="right">
+                            <select class="select" id="unit_no" name="unit_no">
+                                <option value=""></option>
+                                @{
+                                    Advantech.IFactory.CommonLibrary.UnitInfoManager AIM = new Advantech.IFactory.CommonLibrary.UnitInfoManager();
+                                    List<Advantech.IFactory.CommonLibrary.unit_info> objList = AIM.SelectAll();
+                                    if (objList.Count > 0)
+                                    {
+                                        for (int i = 0; i < objList.Count; i++)
+                                        {
+                                            <!option value="@objList[i].unit_no" @if (Model != null) { if (objList[i].unit_no == Model.unit_no) { <text> selected</text>}}>@objList[i].unit_no</!option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">线别</div>
+                        <div class="right">
+                            <select class="select" id="line_id" name="line_id">
+                                <option value=""></option>
+                                @{
+                                    Advantech.IFactory.CommonLibrary.LineInfoManager LIM = new Advantech.IFactory.CommonLibrary.LineInfoManager();
+                                    List<Advantech.IFactory.CommonLibrary.line_info> objline = LIM.SelectAll();
+                                    if (objline.Count > 0)
+                                    {
+                                        for (int i = 0; i < objline.Count; i++)
+                                        {
+                                            <!option value="@objline[i].line_id" @if (Model != null) { if (objline[i].line_id == Model.line_id) { <text> selected</text>}}>@objline[i].line_name_cn </!option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">异常类型所对应的标签编码</div>
+                        <div class="right">
+                            <select class="select" id="system_tag_code" onchange="getvalue()" name="system_tag_code">
+                                <option value=""></option>
+                                @{
+
+                                    Advantech.IFactory.CommonLibrary.SystemTagCodeManager STCS = new Advantech.IFactory.CommonLibrary.SystemTagCodeManager();
+                                    List<Advantech.IFactory.CommonLibrary.system_tag_code> objtagcodes = STCS.SeclectAll();
+                                    if (objtagcodes.Count > 0)
+                                    {
+                                        for (int i = 0; i < objtagcodes.Count; i++)
+                                        {
+                                            <!option value="@objtagcodes[i].code_name_en+@objtagcodes[i].code_name_cn" @if (Model != null) { if (objtagcodes[i].code_name_en == Model.system_tag_code) { <text> selected</text>}}>@objtagcodes[i].code_name_en  </!option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">异常名称</div>
+                        <div class="right">
+                            <input type="text" class="select" id="error_name" name="error_name" value="@if(Model!=null){@Model.error_name}" />
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">功能激活</div>
+                        <div class="right">
+                            <select class="select" id="error_active" name="error_active">
+                                <!option value="1" @if (Model != null) { if (Model.error_active == 1) { <text> selected </text> } }>激活 </!option>
+                                <!option value="0" @if (Model != null) { if (Model.error_active == 0) { <text> selected </text> } }>禁用 </!option>
+
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">触发时输出的灯颜色</div>
+                        <div class="right">
+                            <select class="select" id="trigger_out_color" name="trigger_out_color">
+                                <!option value="0" @if (Model != null) { if (Model.trigger_out_color == 0) { <text> selected </text> } }>无 </!option>
+                                <!option value="1" @if (Model != null) { if (Model.trigger_out_color == 1) { <text> selected </text> } }>红灯输出 </!option>
+                                <!option value="2" @if (Model != null) { if (Model.trigger_out_color == 2) { <text> selected </text> } }>黄灯输出 </!option>
+                                <!option value="3" @if (Model != null) { if (Model.trigger_out_color == 3) { <text> selected </text> } }>绿灯输出 </!option>
+                                <!option value="4" @if (Model != null) { if (Model.trigger_out_color == 4) { <text> selected </text> } }>蓝灯输出 </!option>
+                                <!option value="5" @if (Model != null) { if (Model.trigger_out_color == 5) { <text> selected </text> } }>白灯输出 </!option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">发送通知形式</div>
+                        <div class="right">
+                            <select class="select" id="trigger_message_type" name="trigger_message_type">
+                                <!option value="0" @if (Model != null) { if (Model.trigger_message_type == 0) { <text> selected </text> } }>无任何通知 </!option>
+                                <!option value="1" @if (Model != null) { if (Model.trigger_message_type == 1) { <text> selected </text> } }>所有 </!option>
+                                <!option value="2" @if (Model != null) { if (Model.trigger_message_type == 2) { <text> selected </text> } }>微信 </!option>
+                                <!option value="3" @if (Model != null) { if (Model.trigger_message_type == 3) { <text> selected </text> } }>邮件 </!option>
+                                <!option value="4" @if (Model != null) { if (Model.trigger_message_type == 4) { <text> selected </text> } }>语音 </!option>
+                                <!option value="5" @if (Model != null) { if (Model.trigger_message_type == 5) { <text> selected </text> } }>微信&邮件 </!option>
+                                <!option value="6" @if (Model != null) { if (Model.trigger_message_type == 6) { <text> selected </text> } }>邮件&语音 </!option>
+                                <!option value="7" @if (Model != null) { if (Model.trigger_message_type == 7) { <text> selected </text> } }>微信&语音 </!option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">解除方式</div>
+                        <div class="right">
+                            <select class="select" id="check_ack" name="check_ack">
+                                <!option value="0" @if (Model != null) { if (Model.check_ack == (int)AckModeEnum.NoAck) { <text> selected </text> } }>直接忽略(不亮灯不通知只记录模式)</!option>
+                                <!option value="1" @if (Model != null) { if (Model.check_ack == (int)AckModeEnum.CodeAck) { <text> selected </text> } }>现场需提供异常代码方式解除</!option>
+                                <!option value="2" @if (Model != null) { if (Model.check_ack == (int)AckModeEnum.WithoutCodeAck) { <text> selected </text> } }>现场需要确认解除，无需提供代码</!option>
+                                <!option value="3" @if (Model != null) { if (Model.check_ack == (int)AckModeEnum.WebRegisterAck) { <text> selected </text> } }>现场不能解除，在Web页面进行登记解除</!option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">超时设置(分钟)</div>
+                        <div class="right">
+                            <input type="text" class="select" placeholder="默认是20min" id="timeout_setting" name="timeout_setting" value="@if(Model!=null){@Model.timeout_setting}" />
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">签到方式确认</div>
+                        <div class="right">
+                            <select class="select" id="check_arrival" name="check_arrival">
+                                <!option value="0" @if (Model != null) { if (Model.check_arrival == (int)ArrivalModeEnum.NoArrival) { <text> selected </text> } }>不需要签到人员确认</!option>
+                                <!option value="1" @if (Model != null) { if (Model.check_arrival == (int)ArrivalModeEnum.CardArrival) { <text> selected </text> } }>现场需提供员工卡号方式签到确认</!option>
+                                <!option value="2" @if (Model != null) { if (Model.check_arrival == (int)ArrivalModeEnum.WithoutCardArrival) { <text> selected </text> } }>需要现场点击签到，无需提供卡号</!option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">信息通知级别</div>
+                        <div class="right">
+                            <select class="select" id="message_multilevel" name="message_multilevel">
+                                <!option value="1" @if (Model != null) { if (Model.message_multilevel == 1) { <text> selected </text> } }>多个级别一起通知</!option>
+                                <!option value="0" @if (Model != null) { if (Model.message_multilevel == 0) { <text> selected </text> } }>单个级别人员通知</!option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">签到通知形式</div>
+                        <div class="right">
+                            <select class="select" id="arrival_message_type" name="arrival_message_type">
+                                <!option value="0" @if (Model != null) { if (Model.arrival_message_type == 0) { <text> selected </text> } }>无任何通知 </!option>
+                                <!option value="1" @if (Model != null) { if (Model.arrival_message_type == 1) { <text> selected </text> } }>所有 </!option>
+                                <!option value="2" @if (Model != null) { if (Model.arrival_message_type == 2) { <text> selected </text> } }>微信 </!option>
+                                <!option value="3" @if (Model != null) { if (Model.arrival_message_type == 3) { <text> selected </text> } }>邮件 </!option>
+                                <!option value="4" @if (Model != null) { if (Model.arrival_message_type == 4) { <text> selected </text> } }>语音 </!option>
+                                <!option value="5" @if (Model != null) { if (Model.arrival_message_type == 5) { <text> selected </text> } }>微信&邮件 </!option>
+                                <!option value="6" @if (Model != null) { if (Model.arrival_message_type == 6) { <text> selected </text> } }>邮件&语音 </!option>
+                                <!option value="7" @if (Model != null) { if (Model.arrival_message_type == 7) { <text> selected </text> } }>微信&语音 </!option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">签到输出灯颜色</div>
+                        <div class="right">
+                            <select class="select" id="arrival_out_color" name="arrival_out_color">
+                                <!option value="0" @if (Model != null) { if (Model.arrival_out_color == 0) { <text> selected </text> } }>无 </!option>
+                                <!option value="1" @if (Model != null) { if (Model.arrival_out_color == 1) { <text> selected </text> } }>红灯输出 </!option>
+                                <!option value="2" @if (Model != null) { if (Model.arrival_out_color == 2) { <text> selected </text> } }>黄灯输出 </!option>
+                                <!option value="3" @if (Model != null) { if (Model.arrival_out_color == 3) { <text> selected </text> } }>绿灯输出 </!option>
+                                <!option value="4" @if (Model != null) { if (Model.arrival_out_color == 4) { <text> selected </text> } }>蓝灯输出 </!option>
+                                <!option value="5" @if (Model != null) { if (Model.arrival_out_color == 5) { <text> selected </text> } }>白灯输出 </!option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">触发报警需要达到的次数</div>
+                        <div class="right">
+                            <input type="text" class="select" placeholder="默认次数是1" id="trigger_count" name="trigger_count" value="@if(Model!=null){@Model.trigger_count}" />
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">描述信息</div>
+                        <div class="right">
+                            <input type="text" class="select" id="description" name="description" value="@if(Model!=null){@Model.description}" />
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left"></div>
+                        <div class="right"> 
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Admin)
+                            {
+                                 <input type="button" class="submit" style=" width:18%" value="提交" />
+                            }
+                            else
+                            {
+                                 <input type="button" disabled="disabled" class="submit" style=" width:18%" value="提交"  />
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="ioss">
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">机种型号列表</div>
+                        <div class="right">
+                            <input type="text" class="select" id="part_num" name="part_num" />
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">描述</div>
+                        <div class="right">
+                            <input type="text" class="select" id="descriptionPN" name="descriptionPN" />
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left"></div>
+                        <div class="right">
+                            <span class="btnstyle" onclick="AddCfgPns()">新增机种</span>
+                        </div>
+                    </div>
+
+                    <div class="space"></div>
+                    <!--配置机种显示区域-->
+                    <div class="body" id="pn_area" name="pn_area" style="margin-top:0px;margin-bottom:0px;">
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">人员</div>
+                        <div class="right">
+                            <select class="select" id="person_id" name="person_id">
+                                <option value=""></option>
+                                @{
+                                    Advantech.IFactory.CommonLibrary.PersonManager PM = new Advantech.IFactory.CommonLibrary.PersonManager();
+                                    List<Advantech.IFactory.CommonLibrary.person> objmList = PM.SelectAll();
+                                    if (objmList.Count > 0)
+                                    {
+                                        for (int i = 0; i < objmList.Count; i++)
+                                        {
+                                            <!option value="@objmList[i].id">@objmList[i].user_name</!option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">班别</div>
+                        <div class="right">
+                            <select class="select" id="class_no" name="class_no">
+                                <option value="D">白班</option>
+                                <option value="N">夜班</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left">人员责任等级</div>
+                        <div class="right">
+                            <select class="select" id="person_level" name="person_level">
+                                <option value="1">一级责任人员</option>
+                                <option value="2">二级责任人员</option>
+                                <option value="3">三级责任人员</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space"></div>
+                    <div class="single_div">
+                        <div class="left"></div>
+                        <div class="right">
+                            <div class="button_div" style="width:20%;float:right">
+                                <span class="btnstyle" onclick="AddCfgPersons()">新增人员</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space"></div>
+                    <!--配置人员显示区域-->
+                    <div class="body" id="person_area" name="person_area" style="margin-top:0px;margin-bottom:0px;">
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,116 @@
+﻿@{
+    Layout = null;
+    @model List<Advantech.IFactory.CommonLibrary.city_info>
+
+}
+@using AspNetCoreMvcPager;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript">
+        function deleteTiShi(url) {
+            if (confirm("确认删除数据？")) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>城市列表</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" action="/City/Index" method="post" id="myfrom">
+            <div class="search">
+                <div class="lable_div" style=" margin-left:1%">区域名称：</div>
+                <div class="text_div">
+                    <select class="select" id="area_id" name="area_id">
+                        <option value=""></option>
+                        @{
+                            Advantech.IFactory.CommonLibrary.AreaInfoManager AIM = new Advantech.IFactory.CommonLibrary.AreaInfoManager();
+                            List<Advantech.IFactory.CommonLibrary.area_info> objarea = AIM.SelectAll();
+                            if (objarea.Count > 0)
+                            {
+                                for (int i = 0; i < objarea.Count; i++)
+                                {
+                                    <option value="@objarea[i].area_id">@objarea[i].area_name_en</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="submit_div"><input type="submit" value="查询" class="submit" /></div>
+                @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Admin)
+                {
+                    <div class="button_div"><input type="button" value="新增城市" class="submit" onclick="window.location.href = '/City/Edit'" /></div>
+                }
+
+            </div>
+        </form>
+        <div class="space"></div>
+        <table cellspacing="1" cellpadding="1">
+            <tr class="color">
+                <td style=" width:10%">编号</td>
+                <td style=" width:12%">区域名称</td>
+                <td style=" width:13%">城市名称（英文）</td>
+                <td style=" width:13%">城市名称（简体中文）</td>
+                <td style=" width:13%">城市名称（繁体中文）</td>
+                <td style=" width:12%">编辑</td>
+                <td style=" width:12%">删除</td>
+            </tr>
+            @{
+                int id = 1;
+                foreach (var itmes in Model)
+                {
+                    <tr>
+                        <td>@id</td>
+                        <td>
+                            @{
+                                Advantech.IFactory.CommonLibrary.AreaInfoManager AM = new Advantech.IFactory.CommonLibrary.AreaInfoManager();
+                                List<Advantech.IFactory.CommonLibrary.area_info> objlist = AM.SelectAll();//3.4号重新申明
+                                if (objlist.Count > 0)
+                                {
+                                    @objlist.Find(t => t.area_id == itmes.area_id).area_name_en;
+                                }
+                            }
+                        </td>
+                        <td>@itmes.city_name_en</td>
+                        <td>@itmes.city_name_cn</td>
+                        <td>@itmes.city_name_tw</td>
+                        <td>
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Admin)
+                            {
+                                <a href="/City/Edit?id=@itmes.city_id">编辑</a>
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+                        <td>
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Admin)
+                            {
+                                <a href="#" onclick="deleteTiShi('/City/Del?id=@itmes.city_id')">删除</a>
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+
+                    </tr>
+                    id++;
+                }
+
+            }
+        </table>
+        <div class="page-nav" id="pageIndex">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "City", "Index", true))</div>
+    </div>
+</body>
+</html>

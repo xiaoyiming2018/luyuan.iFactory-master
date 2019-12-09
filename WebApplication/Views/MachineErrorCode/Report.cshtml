@@ -1,0 +1,85 @@
+﻿@{
+    Layout = null;
+    @model List<MachineErrCodeLogForRpt>
+    @using AspNetCoreMvcPager;
+    @using Advantech.IFactory.CommonLibrary;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <!--时间选择js控件-->
+    <script type="text/javascript" src="~/My97DatePicker/WdatePicker.js"></script>
+    <script type="text/javascript">
+        function deleteTiShi(url) {
+            if (confirm("确定删除数据？")) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>机器人异常报警编码><span>记录查询</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" asp-controller="MachineErrorCode" method="post" id="myfrom">
+            <div class="search">
+                <div class="lable_div" style=" margin-left:1%">开始时间</div>
+                <div class="text_div" style=" margin-left:5px;"><input type="text" class="text" id="start_time" name="start_time" autocomplete="OFF" value="@ViewBag.start_time.ToString("yyyy/MM/dd HH:mm:ss")" onclick="WdatePicker({ skin: 'whyGreen', dateFmt: 'yyyy-MM-dd HH:mm:ss' })" /></div>
+                <div class="lable_div" style=" margin-left:1%">结束时间</div>
+                <div class="text_div" style=" margin-left:5px;"><input type="text" class="text" id="end_time" name="end_time" autocomplete="OFF" value="@ViewBag.end_time.ToString("yyyy/MM/dd HH:mm:ss")" onclick="WdatePicker({ skin: 'whyGreen', dateFmt: 'yyyy-MM-dd HH:mm:ss' })" /></div>
+                <div class="lable_div" style=" margin-left:1%">设备编号</div>
+                <div class="text_div" style=" margin-left:5px;"><input type="text" class="text" id="machine_code" name="machine_code" value="@ViewBag.machine_code" /></div>
+                <div class="submit_div" style="margin-left:1%;width:10vw"><input type="submit" value="查询数据" asp-action="ReportQuery" class="submit" /></div>
+                <div class="submit_div" style="margin-left:1%;width:10vw"><input type="submit" value="删除数据" asp-action="DelReport" class="submit" onclick="deleteAlert('/MachineErrorCode/DelReport')" /></div>
+            </div>
+        </form>
+        <div class="space"></div>
+        <table cellspacing="1" cellpadding="1">
+            <tr class="color">
+
+                <td style=" width:10%">编号</td>
+                <td style=" width:10%">设备编码</td>
+                <td style=" width:10%">机器错误标识</td>
+                <td style=" width:20%">异常信息</td>
+                <td style=" width:10%">标签值</td>
+                <td style=" width:20%">发生时间</td>
+                <td style=" width:20%">解除时间</td>
+            </tr>
+            @{
+                int index = 1;
+                if (Model != null)
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@index</td>
+                            <td>@item.machine_code</td>
+                            <td>@item.code_no</td>
+                            <td>@item.code_name_cn</td>
+                            <td>@item.value</td>
+                            <td>@item.insert_time.ToString("yyyy/MM/dd HH:mm:ss")</td>
+                            <td>@item.away_time.ToString("yyyy/MM/dd HH:mm:ss")</td>
+                        </tr>
+                        index++;
+                    }
+                }
+            }
+        </table>
+        @{
+            if (ViewBag.model != null)
+            {
+                <div class="page-nav" id="pageIndex">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "MachineErrorCode", "PageNav", true))</div>
+            }
+        }
+
+    </div>
+</body>
+</html>

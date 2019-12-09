@@ -1,0 +1,116 @@
+﻿@{
+    Layout = null;
+    @model system_tag_code_web
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        function jump() {
+            window.location.href = "../SystemTag";
+        }
+    </script>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            @{
+                if (Model == null)
+                { <text>新增系统标签</text>}
+            else
+            { <text>编辑系统标签</text>}}
+        </div>
+    </div>
+    <div class="content-wrap">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="space"></div>
+                        <form class="form-horizontal" action="../SystemTag/EditHandle" + style="margin-left:5%;" method="post" id="myfrom" enctype="multipart/form-data">
+                            <div class="form-group col-sm-12"></div>
+                            <div class="form-group">
+                                <div class="space"></div>
+                                <div class="form-group">
+                                    <label for="inputEmail3" style="font-size:initial" class="col-sm-3 control-label">标签类型</label>
+                                    <div class="col-sm-9">
+                                        <select id="Type_id" name="Type_id" class="form-control" style="width:52%">
+                                            <option value=""></option>
+                                            @{
+                                                foreach (var items in ViewBag.TypeList)
+                                                {
+                                                    if (items.type_name_en == ViewBag.SelectedType)
+                                                    {
+                                                        <option value=@items.id selected="selected">@items.type_name_en</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value=@items.id >@items.type_name_en</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="space"></div>
+                                <label for="inputUserName" style="font-size:initial" class="col-sm-3 control-label">系统标签名称(en)</label>
+                                <div class="col-sm-9">
+                                    @if (Model != null)
+                                    {
+                                        <input type="text" class="form-control" style="width:50%;text-decoration:solid" id="System_Tag_name_en" name="System_Tag_name_en" value="@if (Model != null) {@Model.code_name_en}" readonly="readonly">
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control" style="width:50%;text-decoration:solid" id="System_Tag_name_en" name="System_Tag_name_en" value="@if (Model != null) {@Model.code_name_en}">
+                                    }
+                                </div>
+                            </div>
+                            <div class="space"></div>
+                            <div class="form-group">
+                                <label for="inputEmail3" style="font-size:initial" class="col-sm-3 control-label">系统标签名称(cn)</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" style="width:50%" id="System_Tag_name_cn" name="System_Tag_name_cn" value="@if (Model != null) {@Model.code_name_cn}">
+                                </div>
+                            </div>
+                            <div class="space"></div>
+                            <div class="form-group">
+                                <label for="inputPassword3" style="font-size:initial" class="col-sm-3 control-label">系统标签名称(tw)</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" style="width:50%" id="System_Tag_name_tw" name="System_Tag_name_tw" value="@if (Model != null) {@Model.code_name_tw}">
+                                </div>
+                            </div>
+                            <div class="space"></div>
+                            <div class="form-group">
+                                <label for="inputPassword3" style="font-size:initial"  class="col-sm-3 control-label">描述</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" style="width:50%" id="description" name="description" value="@if (Model != null) {@Model.code_description}">
+                                </div>
+                            </div>
+                            <div class="space"></div>
+                            <div class="">
+                                <div>
+                                    <div style="margin-left:35%">
+                                        <input type="submit" class="" style="width:100px;height:30px" id="Signup">
+                                        <input type="button" class="" style="width:100px;height:30px" value="取消" onclick="jump()" id="Cancel">
+                                        @*<input type="button" class="submit" style=" width:15%" value="提交" />*@
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+

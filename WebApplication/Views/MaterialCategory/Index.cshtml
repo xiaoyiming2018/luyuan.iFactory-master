@@ -1,0 +1,147 @@
+﻿@{
+    Layout = null;
+    @model List<Advantech.IFactory.CommonLibrary.material_category>
+
+}
+@using AspNetCoreMvcPager;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript" src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript">
+        function deleteTiShi(url) {
+            if (confirm("确认删除数据？")) {
+                window.location.href = url;
+            }
+        }
+        function getLineList() {
+            var unit_no = $('#unit_no option:selected').val();
+            if (unit_no != "") {
+                $.ajax({
+                    type: "POST",
+                    url: "/Machine/GetLineList",
+                    data: { unit_no: unit_no },
+                    success: function (msg) {
+                        $('#line_div').html(msg);
+                    },
+                    error: function (msg) {
+                        alert("Failed to get line");
+                    }
+                });
+            }
+            else {
+                $('#line_id option').remove();
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>物料类别列表</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" action="/MaterialCategory/Index" method="post" id="myfrom">
+            <div class="search">
+                <div class="lable_div">制程代码:</div>
+                <div class="text_div">
+                    <select class="select" id="unit_no" name="unit_no" onchange="getLineList()">
+                        <option value=""></option>
+                        @{
+                            Advantech.IFactory.CommonLibrary.UnitInfoManager UIM = new Advantech.IFactory.CommonLibrary.UnitInfoManager();
+                            List<Advantech.IFactory.CommonLibrary.unit_info> objUnitList = UIM.SelectAll();
+                            if (objUnitList.Count > 0)
+                            {
+                                for (int i = 0; i < objUnitList.Count; i++)
+                                {
+                                    <option value="@objUnitList[i].unit_no">@objUnitList[i].unit_no</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="lable_div">线别:</div>
+                <div class="text_div" id="line_div">
+                    <select class="select" id="line_id" name="line_id">
+                        <option value=""></option>
+                    </select>
+                </div>
+                <div class="submit_div"><input type="submit" value="查询" class="submit" /></div>
+                @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                {
+                    <div class="button_div"><input type="button" style="width:90px" value="新增物料类别" class="submit" onclick="window.location.href = '/MaterialCategory/Edit'" /></div>
+                }
+
+            </div>
+        </form>
+        <div class="space"></div>
+        <table cellspacing="1" cellpadding="1">
+            <tr class="color">
+                <td style=" width:10%">编号</td>
+                <td style=" width: 5%">制程代码</td>
+                <td style=" width: 6.5%">线别</td>
+                <td style=" width:13%">类别编码</td>
+                <td style=" width:13%">类别名称</td>
+                <td style="width:13%">备注</td>
+                <td style=" width:12%">编辑</td>
+                <td style=" width:12%">删除</td>
+            </tr>
+            @{
+                Advantech.IFactory.CommonLibrary.LineInfoManager LIM = new Advantech.IFactory.CommonLibrary.LineInfoManager();
+                List<Advantech.IFactory.CommonLibrary.line_info> objLineList = LIM.SelectAll();
+
+                int id = 1;
+                foreach (var itmes in Model)
+                {
+                    string line_name_en = null;
+                    try
+                    {
+                        line_name_en = objLineList.Find(t => t.line_id == itmes.line_id).line_name_en;
+                    }
+                    catch
+                    {
+
+                    }
+                    <tr>
+                        <td>@id</td>
+                        <td>@itmes.unit_no</td>
+                        <td>@line_name_en</td>
+                        <td>@itmes.type_code</td>
+                        <td>@itmes.type_name</td>
+                        <td>@itmes.remark</td>
+                        <td>
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                            {
+                                <a href="/MaterialCategory/Edit?id=@itmes.id">编辑</a>
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+                        <td>
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                            {
+                                <a href="#" onclick="deleteTiShi('/MaterialCategory/Del?id=@itmes.id')">删除</a>
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+
+                    </tr>
+                    id++;
+                }
+
+            }
+        </table>
+        <div class="page-nav" id="pageIndex">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "MaterialCategory", "Index", true))</div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,129 @@
+﻿@{
+    Layout = null;
+    @model List<ErrorLogRpt>
+    @using AspNetCoreMvcPager;
+    @using Advantech.IFactory.CommonLibrary;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <!--时间选择js控件-->
+    <script type="text/javascript" src="~/My97DatePicker/WdatePicker.js"></script>
+    <script type="text/javascript">
+        function deleteAlert(url) {
+            if (confirm("确定删除数据？删除后不可恢复")) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>安灯><span>记录查询</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" asp-controller="ErrorLog" method="post" id="myfrom">
+            <div class="search">
+                <div class="lable_div" style=" margin-left:1%">开始时间</div>
+                <div class="text_div" style=" margin-left:5px;"><input type="text" class="text" id="start_time" name="start_time" autocomplete="OFF" value="@ViewBag.start_time.ToString("yyyy/MM/dd HH:mm:ss")" onclick="WdatePicker({ skin: 'whyGreen', dateFmt: 'yyyy-MM-dd HH:mm:ss' })" /></div>
+                <div class="lable_div" style=" margin-left:1%">结束时间</div>
+                <div class="text_div" style=" margin-left:5px;"><input type="text" class="text" id="end_time" name="end_time" autocomplete="OFF" value="@ViewBag.end_time.ToString("yyyy/MM/dd HH:mm:ss")" onclick="WdatePicker({ skin: 'whyGreen', dateFmt: 'yyyy-MM-dd HH:mm:ss' })" /></div>
+                <div class="lable_div" style=" margin-left:1%">工位</div>
+                <div class="text_div" style=" margin-left:5px;"><input type="text" class="text" id="device_code" name="device_code" value="@ViewBag.device_code" /></div>
+                <div class="submit_div" style="margin-left:1%;width:10vw"><input type="submit" value="查询数据" asp-action="ReportQuery" class="submit" /></div>
+                <div class="submit_div" style="margin-left:1%;width:10vw"><input type="submit" value="删除数据" asp-action="DelReport" class="submit" onclick="deleteAlert('/MachineErrorCode/DelReport')" /></div>
+            </div>
+        </form>
+        <div class="space"></div>
+        <table cellspacing="1" cellpadding="1">
+            <tr class="color">
+
+                <td style=" width:3%">编号</td>
+                <td style=" width:7%">异常名称</td>
+                <td style=" width:5%">工位</td>
+                <td style=" width:8%">工单</td>
+                <td style=" width:8%">机种</td>
+                <td style=" width:4%">签到人员</td>
+                <td style=" width:4%">确认人员</td>
+                <td style=" width:8%">原因类型</td>
+                <td style=" width:8%">原因名称</td>
+                <td style=" width:9%">发生时间</td>
+                <td style=" width:9%">签到时间</td>
+                <td style=" width:9%">解除时间</td>
+                <td style=" width:9%">维护时间</td>
+                <td style=" width:9%">描述信息</td>
+            </tr>
+            @{
+                int index = 1;
+                if (Model != null)
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@index</td>
+                            <td>@item.error_name</td>
+                            <td>@item.machine_code</td>
+                            <td>@item.work_order</td>
+                            <td>@item.pn</td>
+                            <td>@item.arrival_person_name</td>
+                            <td>@item.ack_person_name</td>
+                            <td>@item.error_type_name</td>
+                            <td>@item.error_code_name_cn</td>
+                            <td>@item.start_time.ToString("yyyy/MM/dd HH:mm:ss")</td>
+                            <td>
+                                @if (item.arrival_time > Convert.ToDateTime("2001-01-01"))
+                                {
+                                    @item.arrival_time.ToString("yyyy/MM/dd HH:mm:ss")
+
+                                }
+                                else
+                                {
+                                    <label>-</label>
+                                }
+                            </td>
+                            <td>
+                                @if (item.release_time > Convert.ToDateTime("2001-01-01"))
+                                {
+                                    @item.release_time.ToString("yyyy/MM/dd HH:mm:ss")
+
+                                }
+                                else
+                                {
+                                    <label>-</label>
+                                }
+                            </td>
+                            <td>
+                                @if (item.maintenance_time > Convert.ToDateTime("2001-01-01"))
+                                {
+                                    @item.maintenance_time.ToString("yyyy/MM/dd HH:mm:ss")
+
+                                }
+                                else
+                                {
+                                    <label>-</label>
+                                }
+                            </td>
+                            <td>@item.remark</td>
+                        </tr>
+                        index++;
+                    }
+                }
+            }
+        </table>
+        @{
+            if (ViewBag.model != null)
+            {
+                <div class="page-nav" id="pageIndex">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "ErrorLog", "PageNav", true))</div>
+            }
+        }
+
+    </div>
+</body>
+</html>

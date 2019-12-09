@@ -1,0 +1,12 @@
+﻿@{
+    Layout = null;
+}
+<select class="select" id="unit_no" name="unit_no" style="font-size:2vw;" onchange="getLineList();">
+    <option value=""></option>
+    @{
+        for (int i = 0; i < ViewBag.unitList.Count; i++)
+        {
+        <option value="@ViewBag.unitList[i].unit_no">@ViewBag.unitList[i].unit_no</option>
+        }
+    }
+</select>

@@ -1,0 +1,105 @@
+﻿@{
+    Layout = null;
+    @model List<Advantech.IFactory.CommonLibrary.error_type_details>
+
+}
+@using AspNetCoreMvcPager;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript">
+        function deleteTiShi(url) {
+            if (confirm("确认删除数据？")) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>安灯><span>错误详细列表</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" action="/Lamp" method="post" id="myfrom">
+            <div class="search">
+
+                @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                {
+                    <div class="button_div"><input type="button" style="margin-left:1%;width:10vw" value="新增详细异常" class="submit" onclick="window.location.href = '/ErrorTypeDetails/Edit'" /></div>
+                }
+
+            </div>
+        </form>
+        <div class="space"></div>
+        <table cellspacing="1" cellpadding="1">
+            <tr class="color">
+                <td style=" width:10%">编号</td>
+                <td style=" width:15%">异常类别</td>
+                <td style=" width:10%">异常代码</td>
+                <td style=" width:10%">异常代码说明(英文)</td>
+                <td style=" width:10%">异常代码说明(中文简体)</td>
+                <td style=" width:10%">异常代码说明(中文繁体)</td>
+                <td style=" width:15%">备注</td>
+                <td style=" width:8%">编辑</td>
+                <td style=" width:8%">删除</td>
+            </tr>
+            @{
+                Advantech.IFactory.CommonLibrary.ErrorTypeManager LIM = new Advantech.IFactory.CommonLibrary.ErrorTypeManager();
+                List<Advantech.IFactory.CommonLibrary.error_type> objList = LIM.SelectAll();
+                int id = 1;
+                foreach (var itmes in Model)
+                {
+                    string error_name = null;
+                    try
+                    {
+                        error_name = objList.Find(t => t.id == itmes.type_id).type_name;
+                    }
+                    catch
+                    {
+                        error_name = "无";
+                    }
+            <tr>
+                <td>@id</td>
+                <td>@error_name</td>
+                <td>@itmes.code_no</td>
+                <td>@itmes.code_name_en</td>
+                <td>@itmes.code_name_cn</td>
+                <td>@itmes.code_name_tw</td>
+                <td>@itmes.remark</td>
+                <td>
+                    @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                    {
+                        <a href="/ErrorTypeDetails/Edit?id=@itmes.id">编辑</a>
+                    }
+                    else
+                    {
+                        <label>-</label>
+                    }
+                </td>
+                <td>
+                    @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                    {
+                        <a href="#" onclick="deleteTiShi('/ErrorTypeDetails/Del?id=@itmes.id')">删除</a>
+                    }
+                    else
+                    {
+                        <label>-</label>
+                    }
+                </td>
+
+            </tr>
+                    id++;
+                }
+
+            }
+        </table>
+        <div class="page-nav" id="pageIndex">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "ErrorTypeDetails", "Index", true))</div>
+    </div>
+</body>
+</html>

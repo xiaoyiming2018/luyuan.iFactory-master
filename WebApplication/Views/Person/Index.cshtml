@@ -1,0 +1,128 @@
+﻿@{
+    Layout = null;
+    @model IList<Advantech.IFactory.CommonLibrary.person>
+
+}
+@using AspNetCoreMvcPager;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript">
+        function deleteTiShi(url) {
+            if (confirm("确认删除数据？")) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>人员列表</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" action="/Person/Index" method="post" id="myfrom">
+            <div class="search">
+
+                @*<div class="lable_div">user_name:</div>
+                <div class="text_div"><input type="text" class="text" id="user_name" name="user_name" /></div>*@
+                <div class="lable_div" style=" margin-left:1%">部门:</div>
+                <div class="text_div" style="margin-left:1%;width:10vw">
+                    <select class="select" id="dept_id" name="dept_id">
+                        <option value=""></option>
+                        @{
+                            Advantech.IFactory.CommonLibrary.DeptInfoManager DIM = new Advantech.IFactory.CommonLibrary.DeptInfoManager();
+                            List<Advantech.IFactory.CommonLibrary.dept_info> objdept = DIM.SelectAll();
+                            if (objdept.Count > 0)
+                            {
+                                for (int i = 0; i < objdept.Count; i++)
+                                {
+                                    <option value="@objdept[i].dept_id">@objdept[i].dept_name_cn</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="submit_div" style="margin-left:1%;width:10vw"><input type="submit" value="查询" class="submit" /></div>
+                @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                {
+                    <div class="button_div" style="margin-left:1%;width:10vw"><input type="button" value="新增人员" class="submit" onclick="window.location.href = '/Person/Edit'" /></div>
+                }
+
+            </div>
+        </form>
+        <div class="space"></div>
+        <table cellspacing="1" cellpadding="1">
+            <tr class="color">
+                <td style=" width:5%">编号</td>
+                <td style=" width:10%">部门</td>
+                <td style=" width:10%">员工名称</td>
+                <td style=" width:10%">员工工号</td>
+                <td style=" width:10%">员工卡号</td>
+                <td style=" width:10%">员工职位</td>
+                <td style=" width:15%">邮箱</td>
+                <td style=" width:10%">手机号码</td>
+                <td style=" width:10%">其他号码</td>
+                <td style=" width:5%">编辑</td>
+                <td style=" width:5%">删除</td>
+            </tr>
+
+            @{
+                Advantech.IFactory.CommonLibrary.DeptInfoManager AIM = new Advantech.IFactory.CommonLibrary.DeptInfoManager();
+                List<Advantech.IFactory.CommonLibrary.dept_info> objList = AIM.SelectAll();
+                int id = 1;
+                foreach (var item in Model)
+                {
+                        <tr>
+                            <td>@id</td>
+                            <td>
+                                @{
+                                    if (objList.Count > 0)
+                                    {
+                                        @objList.Find(t => t.dept_id == item.dept_id).dept_name_cn;
+                                    }
+                                }
+                            </td>
+                            <td>@item.user_name</td>
+                            <td>@item.id_num</td>
+                            <td>@item.card_num</td>
+                            <td>@item.user_position</td>
+                            <td>@item.user_email</td>
+                            <td>@item.mobile_phone</td>
+                            <td>@item.other_contact</td>
+                            <td>
+                                @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                                {
+                                    <a href="/Person/Edit?id=@item.id">编辑</a>
+                                }
+                                else
+                                {
+                                    <label>-</label>
+                                }
+                            </td>
+                            <td>
+                                @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                                {
+                                    <a href="#" onclick="deleteTiShi('/Person/Del?id=@item.id')">删除</a>
+                                }
+                                else
+                                {
+                                    <label>-</label>
+                                }
+                            </td>
+
+                        </tr>
+                    id++;
+                }
+
+            }
+        </table>
+        <div class="page-nav" id="pageIndex">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "Person", "Index", true))</div>
+    </div>
+</body>
+</html>

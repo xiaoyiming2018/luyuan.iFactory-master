@@ -1,0 +1,141 @@
+﻿@{
+    Layout = null;
+    @model Advantech.IFactory.CommonLibrary.rest_time
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript" src="~/grafana-UI-frame/script/lib/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="~/My97DatePicker/WdatePicker.js"></script>
+    <script>
+        $(function () {
+            $('.submit').click(function () {
+                var start_time = $('#start_time').val();
+                var end_time = $('#end_time').val();
+                var state = $('#state').val();
+                var unit_no = $('#unit_no').val();
+                var id = $('#id').val();
+
+                if (start_time == "" || end_time == "" || state == "" || unit_no=="") {
+                    $("#prompt").text("StartTime,EndTime,state,unit_no Can't be empty");
+                    $("#prompt").show();
+                }
+                else {
+                    $.ajax({
+                        type: "POST",
+                        url: "/RestTime/Verification",
+                        data: { start_time: start_time, end_time: end_time, id: id },
+                        success: function (msg) {
+                            if (msg == "Success") {
+                                $("#prompt").hide();
+                                $("#myfrom").submit();
+                            }
+                            else {
+                                $("#prompt").text("The StartTime should not be greater than the EndTime");
+                                $("#prompt").show();
+                            }
+                        },
+                        error: function (msg) {
+                            $("#prompt").text("Getting data failure");
+                            $("#prompt").show();
+                        }
+                    });
+                }
+
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>
+                @{
+                    if (Model == null)
+                    { <text>新增休息时间(日常)</text>}
+                else
+                { <text>编辑休息时间(日常)</text>}
+                }
+            </span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="edit_title">
+                @{
+                    if (Model == null)
+                    { <text>新增休息时间(日常)</text>}
+                else
+                { <text>编辑休息时间(日常)</text>}
+                }
+            </div>
+            <div class="prompt" id="prompt"></div>
+        </div>
+        <form class="form-horizontal" action="/RestTime/EditHandle" method="post" id="myfrom">
+            <div class="space"><input type="hidden" value="@if(ViewBag.id!=null){@ViewBag.id}" id="id" name="id" /></div>
+            <div class="single_div">
+                <div class="left">制程代码</div>
+                <div class="right">
+                    <select class="select" id="unit_no" name="unit_no">
+                        <option value=""></option>
+                        @{
+                            Advantech.IFactory.CommonLibrary.UnitInfoManager UIM = new Advantech.IFactory.CommonLibrary.UnitInfoManager();
+                            List<Advantech.IFactory.CommonLibrary.unit_info> objUnitList = UIM.SelectAll();
+                            if (objUnitList.Count > 0)
+                            {
+                                for (int i = 0; i < objUnitList.Count; i++)
+                                {
+                                    <!option value="@objUnitList[i].unit_no" @if (Model != null) { if (objUnitList[i].unit_no == Model.unit_no) { <text> selected </text> } }>@objUnitList[i].unit_no</!option>
+                                }
+                            }
+                        }
+                    </select>
+
+                </div>
+            </div>
+        
+    <div class="space"></div>
+    <div class="single_div">
+        <div class="left">开始时间</div>
+        <div class="right">
+            <input type="text" class="text" id="start_time" name="start_time" value="@if (Model != null)
+                                                                                             {@Model.start_time}" onclick="WdatePicker({ skin: 'whyGreen', dateFmt: 'yyyy-MM-dd HH:mm:ss' })" />
+        </div>
+    </div>
+    <div class="space"></div>
+    <div class="single_div">
+        <div class="left">结束时间</div>
+        <div class="right">
+            <input type="text" class="text" id="end_time" name="end_time" value="@if(Model!=null){@Model.end_time}" onclick="WdatePicker({ skin: 'whyGreen', dateFmt: 'yyyy-MM-dd HH:mm:ss' })" />
+        </div>
+    </div>
+    <div class="space"></div>
+    <div class="single_div">
+        <div class="left">是否启用</div>
+        <div class="right">
+            <select class="select" id="state" name="state">
+                <option></option>
+                <!option value="A" @if (Model != null) { if (Model.state == "A") { <text> selected</text>}}>Enable</!option>
+                <!option value="S" @if (Model != null) { if (Model.state == "S") { <text> selected </text> } }>Disable</!option>
+            </select>
+
+        </div>
+    </div>
+    <div class="space"></div>
+    <div class="single_div">
+        <div class="left"></div>
+        <div class="right">
+            <input type="button" class="submit" style=" width:15%" value="提交" />
+        </div>
+    </div>
+    <div class="space"></div>
+    </form>
+    </div>
+</body>
+</html>

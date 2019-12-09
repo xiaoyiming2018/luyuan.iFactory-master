@@ -1,0 +1,12 @@
+﻿@{
+    Layout = null;
+}
+<select class="select"  id="machine_code" name="machine_code" >
+    <option value=""></option>
+    @{
+        for (int i = 0; i < ViewBag.machineList.Count; i++)
+        {
+            <option value="@ViewBag.machineList[i].machine_code">@ViewBag.machineList[i].machine_name_cn</option>
+        }
+    }
+</select>

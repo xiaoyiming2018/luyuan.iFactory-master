@@ -1,0 +1,18 @@
+﻿@{
+    Layout = null;
+    @model List<Advantech.IFactory.CommonLibrary.system_tag_code>
+}
+
+<div class="col-sm-9">
+    <select id="System_Tag_code" name="System_Tag_code" class="form-control" style="width:52%">
+        <option value=""></option>
+        @{
+            foreach (var items in Model)
+            {
+                  <option value=@items.id>@items.code_name_en</option>
+            }
+        }
+    </select>
+    <input type="text" hidden="hidden" name="System_Tag_code_Text" id="System_Tag_code_Text" />
+</div>
+

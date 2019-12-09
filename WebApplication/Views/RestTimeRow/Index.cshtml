@@ -1,0 +1,133 @@
+﻿@{
+    Layout = null;
+    @model List<Advantech.IFactory.CommonLibrary.rest_time_row>
+
+}
+@using AspNetCoreMvcPager;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript" src="~/My97DatePicker/WdatePicker.js"></script>
+    <script type="text/javascript">
+        function deleteTiShi(url) {
+            if (confirm("确认删除数据？")) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>休息时间(排休)</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" action="/RestTimeRow/Index" method="post" id="myfrom">
+            <div class="search">
+                <div class="lable_div" style=" margin-left:1%">开始时间:</div>
+                <div class="text_div"><input type="text" class="text" id="start_time" name="start_time" onclick="WdatePicker({ skin: 'whyGreen', dateFmt: 'yyyy-MM-dd HH:mm:ss' })" /></div>
+                <div class="lable_div">结束时间:</div>
+                <div class="text_div"><input type="text" class="text" id="end_time" name="end_time" onclick="WdatePicker({ skin: 'whyGreen', dateFmt: 'yyyy-MM-dd HH:mm:ss' })" /></div>
+                <div class="submit_div" style="margin-left:2%;width:10vw"><input type="submit" value="查询" class="submit"  /></div>
+                @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                {
+                    <div class="button_div" style="margin-left:2%;width:10vw"><input type="button"  value="新增休息时间(排休)" class="submit" onclick="window.location.href = '/RestTimeRow/Add'" /></div>
+
+                }
+
+            </div>
+        </form>
+        <div class="space"></div>
+        <table cellspacing="1" cellpadding="1">
+            <tr class="color">
+                <td style=" width:5%">编号</td>
+                <td style=" width:7%">区域</td>
+                <td style=" width:7%">城市</td>
+                <td style=" width:7%">厂区</td>
+                <td style=" width:7%">制程</td>
+                <td style=" width:7%">线别</td>
+                <td style=" width:8%">设备</td>
+                <td style=" width:9%">标签代码</td>
+                <td style=" width:12%">开始时间</td>
+                <td style=" width:12%">结束时间</td>
+                <td style=" width:14%">备注</td>
+                <td style=" width:4%">删除</td>
+            </tr>
+            @{
+                Advantech.IFactory.CommonLibrary.AreaInfoManager AIM = new Advantech.IFactory.CommonLibrary.AreaInfoManager();
+                List<Advantech.IFactory.CommonLibrary.area_info> objList = AIM.SelectAll();
+
+                Advantech.IFactory.CommonLibrary.CityInfoManager CIM = new Advantech.IFactory.CommonLibrary.CityInfoManager();
+                List<Advantech.IFactory.CommonLibrary.city_info> objCityList = CIM.SelectAll();
+
+                Advantech.IFactory.CommonLibrary.PlantInfoManager PIM = new Advantech.IFactory.CommonLibrary.PlantInfoManager();
+                List<Advantech.IFactory.CommonLibrary.plant_info> objPlantList = PIM.SelectAll();
+
+                Advantech.IFactory.CommonLibrary.LineInfoManager LIM = new Advantech.IFactory.CommonLibrary.LineInfoManager();
+                List<Advantech.IFactory.CommonLibrary.line_info> objLineList = LIM.SelectAll();
+
+                int id = 1;
+                foreach (var itmes in Model)
+                {
+                    string area_name_en = null;
+                    string city_name_ne = null;
+                    string plant_name_en = null;
+                    string unit_name_en = null;
+                    string line_name_en = null;
+                    string station_name_en = null;
+                    Advantech.IFactory.CommonLibrary.MachineInfoManager MIM = new Advantech.IFactory.CommonLibrary.MachineInfoManager();
+                    Advantech.IFactory.CommonLibrary.MachineInfo objMachine = MIM.SelectSingle(machine_code: itmes.machine_code);
+                    if (objMachine != null)
+                    {
+                        try
+                        {
+                            station_name_en = objMachine.machine_name_en;
+                            area_name_en = objList.Find(t => t.area_id == objMachine.area_id).area_name_en;
+                            city_name_ne = objCityList.Find(t => t.city_id == objMachine.city_id).city_name_en;
+                            plant_name_en = objPlantList.Find(t => t.plant_id == objMachine.plant_id).plant_name_en;
+                            unit_name_en = objMachine.unit_no;
+                            line_name_en = objLineList.Find(t => t.line_id == objMachine.line_id).line_name_en;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+            <tr>
+                <td>@id</td>
+                <td>@area_name_en</td>
+                <td>@city_name_ne</td>
+                <td>@plant_name_en</td>
+                <td>@unit_name_en</td>
+                <td>@line_name_en</td>
+                <td>@station_name_en</td>
+                <td>@itmes.tag_code</td>
+                <td>@itmes.start_time</td>
+                <td>@itmes.end_time</td>
+                <td>@itmes.remarks</td>
+                <td>
+                    @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                    {
+                        <a href="#" onclick="deleteTiShi('/RestTimeRow/Del?id=@itmes.id')">删除</a>
+                    }
+                    else
+                    {
+                        <label>-</label>
+                    }
+                </td>
+
+            </tr>
+                    id++;
+                }
+
+            }
+        </table>
+        <div class="page-nav" id="pageIndex">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "RestTimeRow", "Index", true))</div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,131 @@
+﻿@{
+    Layout = null;
+    @model Advantech.IFactory.CommonLibrary.error_type_details
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript" src="~/grafana-UI-frame/script/lib/jquery-3.3.1.min.js"></script>
+    <script>
+        $(function () {
+            $('.submit').click(function () {
+                var area_name_en = $('#area_name_en').val();
+                if (area_name_en == "") {
+                    $("#prompt").text("Area Name(EN) Can't be empty");
+                    $("#prompt").show();
+                }
+                else {
+                    $("#prompt").hide();
+                    $("#myfrom").submit();
+                }
+
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>
+                @{
+                    if (Model == null)
+                    { <text>新增异常详细类别</text>}
+                else
+                { <text>编辑异常详细类别</text>}}
+            </span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="edit_title">
+                @{
+                    if (Model == null)
+                    { <text>新增异常详细类别</text>}
+                else
+                { <text>编辑异常详细类别</text>}
+                }
+            </div>
+            <div class="prompt" id="prompt"></div>
+        </div>
+        <form class="form-horizontal" action="/ErrorTypeDetails/EditHandle" method="post" id="myfrom">
+            <div class="space"><input type="hidden" value="@if(ViewBag.id!=null){@ViewBag.id}" id="id" name="id" /></div>
+            <div class="single_div">
+                <div class="left">类别名称</div>
+                <div class="right">
+                    <select class="select" id="type_id" name="type_id">
+                        <option value=""></option>
+                        @{
+
+                            Advantech.IFactory.CommonLibrary.ErrorTypeManager AIM = new Advantech.IFactory.CommonLibrary.ErrorTypeManager();
+                            List<Advantech.IFactory.CommonLibrary.error_type> objList = AIM.SelectAll();
+                            if (objList.Count > 0)
+                            {
+                                for (int i = 0; i < objList.Count; i++)
+                                {
+                                    <!option value="@objList[i].id" @if (Model != null) { if (objList[i].id == Model.type_id) { <text> selected</text>}}>@objList[i].type_name</!option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">错误代码</div>
+                <div class="right">
+                    <input type="text" class="text" id="code_no" name="code_no" value="@if(Model!=null){@Model.code_no}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">异常代码说明(英文)</div>
+                <div class="right">
+                    <input type="text" class="text" id="code_name_en" name="code_name_en" value="@if(Model!=null){@Model.code_name_en}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">异常代码说明(中文简体)</div>
+                <div class="right">
+                    <input type="text" class="text" id="code_name_cn" name="code_name_cn" value="@if(Model!=null){@Model.code_name_cn}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">异常代码说明(中文繁体)</div>
+                <div class="right">
+                    <input type="text" class="text" id="code_name_tw" name="code_name_tw" value="@if(Model!=null){@Model.code_name_tw}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">备注</div>
+                <div class="right">
+                    <input type="text" class="text" id="remark" name="remark" value="@if(Model!=null){@Model.remark}" />
+                </div>
+            </div>
+            @*<div class="space"></div>
+            <div class="single_div">
+                <div class="left">createtime</div>
+                <div class="right">
+                    <input type="text" class="text" id="createtime" name="createtime" value="@if(Model!=null){@Model.createtime}" />
+                </div>
+            </div>*@
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left"></div>
+                <div class="right">
+                    <input type="button" class="submit" style=" width:15%" value="提交" />
+                </div>
+            </div>
+            <div class="space"></div>
+        </form>
+    </div>
+</body>
+</html>

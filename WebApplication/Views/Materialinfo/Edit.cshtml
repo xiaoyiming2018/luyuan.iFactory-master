@@ -1,0 +1,125 @@
+﻿@{
+    Layout = null;
+    @model Advantech.IFactory.CommonLibrary.material_info
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript" src="~/grafana-UI-frame/script/lib/jquery-3.3.1.min.js"></script>
+    <script>
+        $(function () {
+            $('.submit').click(function () {
+                var material_name = $('#material_name').val(); 
+                var category_id = $('#category_id').val();
+                if (material_name == "" || category_id<=0) {
+                    $("#prompt").text("物料名称或物料类别不可为空");
+                    $("#prompt").show();
+                }
+                else {
+                    $("#prompt").hide();
+                    $("#myfrom").submit();
+                }
+
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>
+                @{
+                    if (Model == null)
+                    { <text>新增物料（明细）</text>}
+                else
+                { <text>编辑物料（明细）</text>}}
+            </span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="edit_title">
+                @{
+                    if (Model == null)
+                    { <text>新增物料（明细）</text>}
+                else
+                { <text>编辑物料（明细）</text>}
+                }
+            </div>
+            <div class="prompt" id="prompt"></div>
+        </div>
+        <form class="form-horizontal" action="/Materialinfo/EditHandle" method="post" id="myfrom">
+            <div class="space"><input type="hidden" value="@if(ViewBag.id!=null){@ViewBag.id}" id="id" name="id" /></div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">类别编码</div>
+                <div class="right">
+                    <select class="select" id="category_id" name="category_id" >
+                        <option value=""></option>
+                        @{
+                            
+                            Advantech.IFactory.CommonLibrary.material_categoryManager UIM = new Advantech.IFactory.CommonLibrary.material_categoryManager();
+                            List<Advantech.IFactory.CommonLibrary.material_category> objList = UIM.SelectAll();
+                            if (objList.Count > 0)
+                            {
+                                for (int i = 0; i < objList.Count; i++)
+                                {
+                                    <!option value="@objList[i].id" @if (Model != null) { if (objList[i].id == Model.category_id) { <text> selected </text> } }>@objList[i].type_name</!option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="single_div">
+                <div class="left">物料编码</div>
+                <div class="right">
+                    <input type="text" class="text" id="material_code" name="material_code" value="@if(Model!=null){@Model.material_code}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">物料名称</div>
+                <div class="right">
+                    <input type="text" class="text" id="material_name" name="material_name" value="@if(Model!=null){@Model.material_name}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">物料型号</div>
+                <div class="right">
+                    <input type="text" class="text" id="material_type" name="material_type" value="@if(Model!=null){@Model.material_type}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">库存数量</div>
+                <div class="right">
+                    <input type="text" class="text" id="material_inventory" name="material_inventory" value="@if(Model!=null){@Model.material_inventory}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left">备注</div>
+                <div class="right">
+                    <input type="text" class="text" id="remark" name="remark" value="@if(Model!=null){@Model.remark}" />
+                </div>
+            </div>
+            <div class="space"></div>
+            <div class="single_div">
+                <div class="left"></div>
+                <div class="right">
+                    <input type="button" class="submit" style=" width:15%" value="提交" />
+                </div>
+            </div>
+            <div class="space"></div>
+        </form>
+    </div>
+</body>
+</html>

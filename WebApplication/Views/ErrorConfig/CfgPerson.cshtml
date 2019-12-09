@@ -1,0 +1,52 @@
+﻿@{
+    Layout = null;
+    @model List<ErrorCfgPersonView>
+    @using Advantech.IFactory.Andon;
+}
+<!DOCTYPE html>
+<div class="body" id="person_area" name="person_area" style="margin-top:0px;margin-bottom:0px;">
+    <!--人员配置列表-->
+    <table id="tabs" cellspacing="1" cellpadding="1">
+        <tr class="color">
+            <td style=" width:10%">编号</td>
+            <td style=" width:10%">部门</td>
+            <td style=" width:10%">班别</td>
+            <td style=" width:15%">人员</td>
+            <td style=" width:15%">人员责任等级</td>
+            <td style=" width:15%">删除</td>
+        </tr>
+        @{
+            int index = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@index</td>
+                    <td>@item.dept_name_cn</td>
+                    <td>@item.class_name_cn</td>
+                    <td>@item.user_name</td>
+                    <td>
+                        @if (item.person_level == 1)
+                        {<text>一级责任人员</text>}
+                    else if (item.person_level == 2)
+                    {
+                        <text>二级责任人员</text>
+                    }
+                    else if (item.person_level == 3)
+                    {
+                        <text>三级责任人员</text>
+                    }
+                    </td>
+                    <td>
+                        @*<a href="#" onclick="deleteAlert('/ErrorConfig/DelP?id=@item.id&config_id=@item.error_config_id')">Del</a>*@
+                        <a href="#" onclick="DelCfgPersons(@item.id,@item.error_config_id)">Del</a>
+                    </td>
+
+                </tr>
+                ++index;
+            }
+        }
+    </table>
+</Div>
+
+
+

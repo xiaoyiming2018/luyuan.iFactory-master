@@ -1,0 +1,17 @@
+﻿@{
+    Layout = null;
+    List<dept_info> objList = new List<dept_info>();
+    if (ViewBag.deptList != null)
+    {
+        objList = ViewBag.deptList;
+    }
+}
+<select class="select" id="dept_id" name="dept_id" onchange="getUnitList()">
+    <option value=""></option>
+    @{
+        for (int i = 0; i < objList.Count; i++)
+        {
+            <option value="@objList[i].dept_id">@objList[i].dept_name_cn</option>
+        }
+    }
+</select>

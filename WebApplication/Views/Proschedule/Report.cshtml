@@ -1,0 +1,143 @@
+﻿@{
+    Layout = null;
+    @model List<Advantech.IFactory.CommonLibrary.pro_schedule>
+    @using Advantech.IFactory.CommonLibrary
+}
+@using AspNetCoreMvcPager;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <!--时间选择js控件-->
+    <script type="text/javascript" src="~/My97DatePicker/WdatePicker.js"></script>
+    <script type="text/javascript">
+        function deleteAlert(url) {
+            if (confirm("确定要删除这些数据吗？")) {
+                window.location.href = url;
+            }
+        }
+
+/**/</script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>工单><span>历史工单信息</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" asp-controller="Proschedule" method="post" id="myfrom">
+            <div class="search">
+                <div class="lable_div" style=" margin-left:1%">开始时间</div>
+                <div class="text_div" style=" margin-left:5px;"><input type="text" class="text" id="start_time" name="start_time" autocomplete="OFF" value="@ViewBag.start_time.ToString("yyyy/MM/dd HH:mm:ss")" onclick="WdatePicker({ skin: 'whyGreen', dateFmt: 'yyyy-MM-dd HH:mm:ss' })" /></div>
+                <div class="lable_div" style=" margin-left:1%">结束时间</div>
+                <div class="text_div" style=" margin-left:5px;"><input type="text" class="text" id="end_time" name="end_time" autocomplete="OFF" value="@ViewBag.end_time.ToString("yyyy/MM/dd HH:mm:ss")" onclick="WdatePicker({ skin: 'whyGreen', dateFmt: 'yyyy-MM-dd HH:mm:ss' })" /></div>
+                <div class="lable_div" style=" margin-left:1%">工单编号</div>
+                <div class="text_div" style=" margin-left:5px;"><input type="text" class="text" id="work_order" name="work_order" value="@ViewBag.work_order" /></div>
+                <div class="submit_div" style="margin-left:1%;width:10vw">
+                    @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Operator)
+                    {
+                        <input type="submit" value="查询数据" asp-action="ReportQuery" class="submit" />
+                    }
+                    else
+                    {
+                        <input type="submit" value="查询数据" asp-action="ReportQuery" class="submit" readonly />
+                    }
+                </div>
+                <div class="submit_div" style="margin-left:1%;width:10vw">
+                    @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Operator)
+                    {
+                        <input type="submit" value="删除数据" asp-action="DelReport" class="submit" onclick="deleteAlert('/Proschedule/DelReport')" />
+                    }
+                    else
+                    {
+                        <input type="submit" value="删除数据" asp-action="DelReport" class="submit" onclick="deleteAlert('/Proschedule/DelReport')" readonly />
+                    }
+                </div>
+            </div>
+        </form>
+        <div class="space"></div>
+        <table cellspacing="1" cellpadding="1">
+            <tr class="color">
+                <td style=" width:5%">编号</td>
+                <td style=" width:12%">工单</td>
+                <td style=" width:12%">机种型号</td>
+                <td style=" width:7%">制程代码</td>
+                <td style=" width:5%">标准数量</td>
+                <td style=" width:5%">实际数量</td>
+                <td style=" width:5%">不良数量</td>
+                <td style=" width:10%">开始时间</td>
+                <td style=" width:10%">结束时间</td>
+                <td style=" width:10%">创建时间</td>
+                <td style=" width:7%">当前状态</td>
+            </tr>
+            @{
+                int id = 1;
+                if (Model != null)
+                {
+                    foreach (var itmes in Model)
+                    {
+                        <tr>
+                            <td>@id</td>
+                            <td>@itmes.work_order</td>
+                            <td>@itmes.part_num</td>
+                            <td>@itmes.unit_no</td>
+                            <td>@itmes.standard_num</td>
+                            <td>@itmes.actual_num</td>
+                            <td>@itmes.defectives_count</td>
+                            @if (itmes.start_time <= Convert.ToDateTime("2001/1/1 0:00:00"))
+                            {
+                                <td>-</td>
+                            }
+                            else
+                            {
+                                <td>@itmes.start_time.ToString("yyyy/MM/dd HH:mm:ss")</td>
+                            }
+                            @if (itmes.end_time <= Convert.ToDateTime("2001/1/1 0:00:00"))
+                            {
+                                <td>-</td>
+                            }
+                            else
+                            {
+                                <td>@itmes.end_time.ToString("yyyy/MM/dd HH:mm:ss")</td>
+                            }
+                            <td>@itmes.insert_time.ToString("yyyy/MM/dd HH:mm:ss")</td>
+                            <td>
+                                @if (itmes.order_status == (int)OrderStatusEnum.Created)
+                                {<text>已创建</text>}
+                            else if (itmes.order_status == (int)OrderStatusEnum.Scheduled)
+                            {
+                                <text>已排产</text>
+                            }
+                            else if (itmes.order_status == (int)OrderStatusEnum.Excuting)
+                            {
+                                <text>执行中</text>
+                            }
+                            else if (itmes.order_status == (int)OrderStatusEnum.Finished)
+                            {
+                                <text>已完成</text>
+                            }
+                            else if (itmes.order_status == (int)OrderStatusEnum.Aborted)
+                            {
+                                <text>取消中止</text>
+                            }
+                            </td>
+                        </tr>
+                        id++;
+                    }
+                }
+            }
+        </table>
+        @{
+            if (ViewBag.model != null)
+            {
+                <div class="page-nav" id="pageIndex">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "Proschedule", "SchdulePageNav", true))</div>
+            }
+        }
+
+    </div>
+</body>
+</html>

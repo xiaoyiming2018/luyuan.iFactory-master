@@ -1,0 +1,160 @@
+﻿@{
+    Layout = null;
+    @model Advantech.IFactory.CommonLibrary.MachineErrorCode
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript" src="~/grafana-UI-frame/script/lib/jquery-3.3.1.min.js"></script>
+    <script>
+        $(function () {
+            $('.submit').click(function () {
+                var code_no = $('#code_no').val();
+                var code_name_en = $('#code_name_en').val();
+
+                if (code_no == "") {
+                    if (code_no == "") {
+                        $("#prompt").text("Code No Can't be empty");
+                        $("#prompt").show();
+                    }
+                    //else if (code_name_en == "") {
+                    //    $("#prompt").text("Code Name(en) Can't be empty");
+                    //    $("#prompt").show();
+                    //}
+                }
+                else {
+                    var id = $('#id').val();
+                    $.ajax({
+                        type: "POST",
+                        url: "/MachineErrorCode/Validate",
+                        data: { id: id, code_no: code_no },
+                        success: function (msg) {
+                            if (msg) {
+                                $("#prompt").hide();
+                                $("#myfrom").submit();
+                            }
+                            else
+                            {
+                                $("#prompt").text("The CodeNo has already existed");
+                                $("#prompt").show();
+                            }
+                        },
+                        error: function (msg) {
+                            $("#prompt").text("Failed to get Error Code");
+                            $("#prompt").show();
+                        }
+                    });
+
+                   
+                }
+
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>
+                @{
+                    if (Model == null)
+                    { <text>新增异常编码</text>}
+                else
+                { <text>编辑异常编码</text>}}
+            </span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="edit_title">
+                @{
+                    if (Model == null)
+                    { <text>新增异常编码</text>}
+                else
+                { <text>编辑异常编码</text>}
+                }
+            </div>
+            <div class="prompt" id="prompt"></div>
+        </div>
+        @*<form class="form-horizontal" action="/ErrorCodeDetails/EditHandle" method="post" id="myfrom">*@
+        <form class="form-horizontal" asp-controller="MachineErrorCode" asp-action="EditHandle" method="post" id="myfrom">
+        <div class="space"><input type="hidden" value="@if(ViewBag.id!=null){@ViewBag.id}" id="id" name="id" /></div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">所属设备类型</div>
+            <div class="right">
+                <input type="text" class="text" id="machine_type" name="machine_type" value="@if(Model!=null){@Model.machine_type}" />
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">编码标识</div>
+            <div class="right">
+                <input type="text" class="text" id="code_no" name="code_no" value="@if(Model!=null){@Model.code_no}" />
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">异常编码(英文)</div>
+            <div class="right">
+                <input type="text" class="text" id="code_name_en" name="code_name_en" value="@if(Model!=null){@Model.code_name_en}" />
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">异常编码(简体中文)</div>
+            <div class="right">
+                <input type="text" class="text" id="code_name_cn" name="code_name_cn" value="@if(Model!=null){@Model.code_name_cn}" />
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">异常编码(繁体中文)</div>
+            <div class="right">
+                <input type="text" class="text" id="code_name_tw" name="code_name_tw" value="@if(Model!=null){@Model.code_name_tw}" />
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">是否需要接入异常呼叫</div>
+            <div class="right">
+                <select class="select" id="Require_andon" name="Require_andon">
+                    <!option value="-1" @if (Model != null) { if (Model.require_andon == -1) { <text> selected </text> } }></!option>
+                    <!option value="0" @if (Model != null) { if (Model.require_andon == 0) { <text> selected </text> } }>否 </!option>
+                    <!option value="1" @if (Model != null) { if (Model.require_andon == 1) { <text> selected </text> } }>是 </!option>
+                </select>
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">标签值</div>
+            <div class="right">
+                <input type="text" class="text" id="tag_value" name="tag_value" value="@if(Model!=null){@Model.tag_value}" />
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left">描述</div>
+            <div class="right">
+                <input type="text" class="text" id="desciption" name="desciption" value="@if(Model!=null){@Model.desciption}" />
+            </div>
+        </div>
+        <div class="space"></div>
+        <div class="single_div">
+            <div class="left"></div>
+            <div class="right">
+                @*@Html.ActionLink("Edit", "EditHandle", new { id = Model.id })*@
+                <input type="button" class="submit" style=" width:15%" value="提交" />
+            </div>
+        </div>
+        <div class="space"></div>
+        </form>
+    </div>
+</body>
+</html>

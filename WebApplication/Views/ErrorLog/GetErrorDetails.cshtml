@@ -1,0 +1,18 @@
+﻿@{
+    Layout = null;
+    List<error_type_details> objList = new List<error_type_details>();
+    if (ViewBag.detailsList != null)
+    {
+        objList = ViewBag.detailsList;
+    }
+}
+<select class="select" id="error_type_id" name="error_type_id" >
+    <option value=""></option>
+    @{
+        for (int i = 0; i < objList.Count; i++)
+        {
+            <option value="@objList[i].id">@objList[i].code_name_cn</option>
+        }
+    }
+</select>
+

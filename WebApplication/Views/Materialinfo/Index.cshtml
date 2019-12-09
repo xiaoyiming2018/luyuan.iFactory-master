@@ -1,0 +1,105 @@
+﻿@{
+    Layout = null;
+    @model List<Advantech.IFactory.CommonLibrary.material_info>
+
+}
+@using AspNetCoreMvcPager;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript">
+        function deleteTiShi(url) {
+            if (confirm("确认删除数据？")) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>物料清单（明细）</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" action="/Lamp" method="post" id="myfrom">
+            <div class="search">
+
+                @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                {
+                    <div class="button_div"><input type="button" value="新增物料" class="submit" onclick="window.location.href = '/Materialinfo/Edit'" /></div>
+                }
+
+            </div>
+        </form>
+        <div class="space"></div>
+        <table cellspacing="1" cellpadding="1">
+            <tr class="color">
+                <td style=" width:8%">编号</td>
+                <td style=" width:10%">物料类别</td>
+                <td style=" width:10%">物料编码</td>
+                <td style=" width:10%">物料名称</td>
+                <td style=" width:10%">物料型号</td>
+                <td style=" width:10%">库存数量</td>
+                <td style=" width:10%">备注</td>
+                <td style=" width:10%">编辑</td>
+                <td style=" width:10%">删除</td>
+            </tr>
+            @{
+                Advantech.IFactory.CommonLibrary.material_categoryManager MM = new Advantech.IFactory.CommonLibrary.material_categoryManager();
+                List<Advantech.IFactory.CommonLibrary.material_category> objList = MM.SelectAll();
+                int id = 1;
+                foreach (var itmes in Model)
+                {
+                    string typename = null;
+                    try
+                    {
+
+                        typename = objList.Find(t => t.id == itmes.category_id).type_name;
+                    } catch {
+                        typename = "无";
+                    }
+
+            <tr>
+                <td>@id</td>
+                <td>@typename</td>
+                <td>@itmes.material_code</td>
+                <td>@itmes.material_name</td>
+                <td>@itmes.material_type</td>
+                <td>@itmes.material_inventory</td>
+                <td>@itmes.remark</td>
+                <td>
+                    @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                    {
+                        <a href="/Materialinfo/Edit?id=@itmes.id">编辑</a>
+                    }
+                    else
+                    {
+                        <label>-</label>
+                    }
+                </td>
+                <td>
+                    @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                    {
+                        <a href="#" onclick="deleteTiShi('/Materialinfo/Del?id=@itmes.id')">删除</a>
+                    }
+                    else
+                    {
+                        <label>-</label>
+                    }
+                </td>
+
+            </tr>
+                    id++;
+                }
+
+            }
+        </table>
+        <div class="page-nav" id="pageIndex">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "Materialinfo", "Index", true))</div>
+    </div>
+</body>
+</html>

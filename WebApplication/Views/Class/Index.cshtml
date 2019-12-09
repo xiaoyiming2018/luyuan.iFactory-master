@@ -1,0 +1,94 @@
+﻿@{
+    Layout = null;
+    @model List<Advantech.IFactory.CommonLibrary.class_info>
+
+}
+@using AspNetCoreMvcPager;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript">
+        function deleteTiShi(url) {
+            if (confirm("确认删除数据？")) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>班别列表</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" action="/Class" method="post" id="myfrom">
+            <div class="search">
+
+                @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                {
+                    <div class="button_div"><input type="button" value="新增班别" class="submit" style="margin-left:1%;width:10vw" onclick="window.location.href = '/Class/Edit'" /></div>
+                }
+
+            </div>
+        </form>
+        <div class="space"></div>
+        <table cellspacing="1" cellpadding="1">
+            <tr class="color">
+                <td style=" width:8%">编号</td>
+                <td style=" width:10%">班别代码</td>
+                <td style=" width:18%">班别(英文)</td>
+                <td style=" width:14%">班别(简体中文)</td>
+                <td style=" width:14%">班别(繁体中文)</td>
+                <td style=" width:8%">开始时间</td>
+                <td style=" width:8%">结束时间</td>
+                <td style=" width:11%">编辑</td>
+                <td style=" width:11%">删除</td>
+            </tr>
+            @{
+                int id = 1;
+                foreach (var itmes in Model)
+                {
+                    <tr>
+                        <td>@id</td>
+                        <td>@itmes.class_no</td>
+                        <td>@itmes.class_name_en</td>
+                        <td>@itmes.class_name_cn</td>
+                        <td>@itmes.class_name_tw</td>
+                        <td>@itmes.start_time</td>
+                        <td>@itmes.end_time</td>
+                        <td>
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                            {
+                                <a href="/Class/Edit?id=@itmes.class_id">编辑</a>
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+                        <td>
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                            {
+                                <a href="#" onclick="deleteTiShi('/Class/Del?id=@itmes.class_id')">删除</a>
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+
+                    </tr>
+                    id++;
+                }
+
+            }
+        </table>
+        <div class="page-nav" id="pageIndex">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "Class", "Index", true))</div>
+    </div>
+</body>
+</html>

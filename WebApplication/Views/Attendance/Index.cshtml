@@ -1,0 +1,127 @@
+﻿@{
+    Layout = null;
+    @model List<Advantech.IFactory.CommonLibrary.Attendance>
+
+}
+@using AspNetCoreMvcPager;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript">
+        function deleteTiShi(url) {
+            if (confirm("确认删除数据？")) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>配置><span>出勤资讯列表</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" action="/Attendance" method="post" id="myfrom">
+            <div class="search">
+                @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Operator)
+                {
+                    <div class="button_div"><input type="button" style="margin-left:1%;width:10vw" value="新增出勤资讯" class="submit" onclick="window.location.href = '/Attendance/Edit'" /></div>
+                }
+
+            </div>
+        </form>
+        <div class="space"></div>
+        <table cellspacing="1" cellpadding="1">
+            <tr class="color">
+                <td style=" width:10%">编号</td>
+                <td style=" width:10%">线别</td>
+                <td style=" width:10%">班别</td>
+                <td style=" width:10%">制程</td>
+                <td style=" width:10%">标准人数</td>
+                <td style=" width:10%">实际人数</td>
+                <td style=" width:10%">出勤率</td>
+                <td style=" width:10%">日期</td>
+                <td style=" width:10%">编辑</td>
+                <td style=" width:10%">删除</td>
+            </tr>
+
+            @{
+                int id = 1;
+                foreach (var itmes in Model)
+                {
+            <tr>
+                <td>@id</td>
+                <td>
+                    @{
+                        Advantech.IFactory.CommonLibrary.LineInfoManager LIM = new Advantech.IFactory.CommonLibrary.LineInfoManager();
+                        List<Advantech.IFactory.CommonLibrary.line_info> obj = LIM.SelectAll();//3.4号重新申明
+                        if (obj.Count > 0)
+                        {
+                            @obj.Find(t => t.line_id == itmes.line_id).line_name_cn;
+                        }
+                    }
+                </td>
+                <td>
+                    @{
+                        Advantech.IFactory.CommonLibrary.ClassInfoManager CIM = new Advantech.IFactory.CommonLibrary.ClassInfoManager();
+                        List<Advantech.IFactory.CommonLibrary.class_info> objline = CIM.SelectAll();//3.4号重新申明
+                        if (objline.Count > 0)
+                        {
+                            @objline.Find(t => t.class_no == itmes.class_no).class_name_cn;
+                        }
+                    }
+                </td>
+                <td>
+                    @{
+                        Advantech.IFactory.CommonLibrary.UnitInfoManager UIM = new Advantech.IFactory.CommonLibrary.UnitInfoManager();
+                        List<Advantech.IFactory.CommonLibrary.unit_info> objunit = UIM.SelectAll();//3.4号重新申明
+                        if (objunit.Count > 0)
+                        {
+                            if (objunit.Find(t => t.unit_no == itmes.unit_no) != null)
+                            {
+                                @objunit.Find(t => t.unit_no == itmes.unit_no).unit_name_cn;
+                            }
+                        }
+                    }
+                </td>
+                @*<td>@itmes.line</td>*@
+                <td>@itmes.standard_num</td>
+                <td>@itmes.real_num</td>
+                <td>@itmes.attendance_rate</td>
+                <td>@itmes.createtime.ToString("yyyy/MM/dd HH:mm:ss")</td>
+                <td>
+                    @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Operator)
+                    {
+                        <a href="/Attendance/Edit?id=@itmes.id">编辑</a>
+                    }
+                    else
+                    {
+                        <label>-</label>
+                    }
+                </td>
+                <td>
+                    @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Operator)
+                    {
+                        <a href="#" onclick="deleteTiShi('/Attendance/Del?id=@itmes.id')">删除</a>
+                    }
+                    else
+                    {
+                        <label>-</label>
+                    }
+                </td>
+
+            </tr>
+                    id++;
+                }
+
+            }
+        </table>
+        <div class="page-nav" id="pageIndex">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "Attendance", "Index", true))</div>
+    </div>
+</body>
+</html>

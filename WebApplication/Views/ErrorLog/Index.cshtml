@@ -1,0 +1,107 @@
+﻿@{
+    Layout = null;
+    @model List<Advantech.IFactory.CommonLibrary.error_log>
+    @using AspNetCoreMvcPager;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="~/grafana-UI-frame/style/main-subpage.css" />
+    <script type="text/javascript">
+        function deleteTiShi(url) {
+            if (confirm("确认删除数据？")) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="head">
+        <div class="title">
+            主页>安灯><span>待维护异常记录列表</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="space"></div>
+        <form class="form-horizontal" action="/ErrorLog/DeviceQuery" method="post" id="myfrom">
+            <div class="search">
+                <div class="lable_div" style=" margin-left:1%">工位编号</div>
+                <div class="text_div" style="margin-left:1%;width:12vw">
+                    <input type="text" class="text" id="device_code" name="device_code" value="@ViewBag.device_code" />
+                </div>
+                <div class="submit_div" style="margin-left:1%;width:10vw"><input type="submit" value="查询" class="submit" /></div>
+            </div>
+        </form>
+        <div class="space"></div>
+        <table cellspacing="1" cellpadding="1">
+            <tr class="color">
+                <td style=" width:8%">编号</td>
+                <td style=" width:8%">异常名称</td>
+                <td style=" width:10%">工位编码</td>
+                <td style=" width:8%">机种型号</td>
+                <td style=" width:8%">工单号码</td>
+                <td style=" width:10%">发生时间</td>
+                <td style=" width:10%">解除时间</td>
+                <td style=" width:10%">备注</td>
+                <td style=" width:8%">编辑</td>
+                <td style=" width:8%">删除</td>
+            </tr>
+            @{
+                Advantech.IFactory.CommonLibrary.StationManager LIM = new Advantech.IFactory.CommonLibrary.StationManager();
+                List<Advantech.IFactory.CommonLibrary.station_info> objLineList = LIM.SelectAll();
+
+                int index = 1;
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@index</td>
+                        <td>@item.error_name</td>
+                        <td>@item.machine_code</td>
+                        <td>@item.pn</td>
+                        <td>@item.work_order</td>
+                        <td>@item.start_time.ToString("yyyy/MM/dd HH:mm:ss")</td>
+                        <td>
+                            @if (item.release_time > Convert.ToDateTime("2001-01-01"))
+                            {
+                                @item.release_time.ToString("yyyy/MM/dd HH:mm:ss")
+
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+                        <td>@item.remark</td>
+                        <td>
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Operator)
+                            {
+                                <a href="/ErrorLog/Edit?id=@item.id">信息维护</a>
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+                        <td>
+                            @if (WebUserManager.Current.GetLevel >= UserLevelEnum.Manager)
+                            {
+                                <a href="#" onclick="deleteTiShi('/ErrorLog/Del?id=@item.id')">删除</a>
+                            }
+                            else
+                            {
+                                <label>-</label>
+                            }
+                        </td>
+                    </tr>
+                    index++;
+                }
+
+            }
+        </table>
+        <div class="page-nav" id="pageIndex">@Html.Raw(PagerHtmlString.Pager(ViewBag.model, "ErrorLog", "IndexPageNav", true))</div>
+    </div>
+</body>
+</html>

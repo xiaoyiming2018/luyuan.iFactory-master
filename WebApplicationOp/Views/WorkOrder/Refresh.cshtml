@@ -1,0 +1,84 @@
+﻿@{
+    Layout = null;//刷新区域不需要用模板
+    @model List<Pro_schedule_machine>
+    @using Advantech.IFactory.CommonLibrary
+}
+<!--当前执行的工单表格-->
+<div class="body" id="refresh_area" name="refresh_area" style="margin-top:0px;margin-bottom:0px;">
+    @*<div class="space"></div>*@
+    <div id="myTable" name="myTable" style="margin-top:0px;margin-bottom:10px;height:20%">
+        @*<div class="space"></div>
+            <hr />*@
+        <text style="font-size:2.5vw;text-align:center">当前执行工单</text>
+        <table cellspacing="1" cellpadding="1" id="psTable" name="psTable">
+            <tr>
+                <td style="font-size:2.5vw; width: 15%;color:#5AC8FA;font-weight:bold">工单号码</td>
+                <td style="font-size:2.5vw; width: 25%">@ViewBag.Order.work_order</td>
+                <td style="font-size:2.5vw; width: 15%;color:#5AC8FA;font-weight:bold">产品型号</td>
+                <td style="font-size:2.5vw; width: 25%">@ViewBag.Order.part_num</td>
+                <td> <button onclick="OrderFinishAlert()" style="width:80%;font-size:3vw;color:#055473">工单完成</button></td>
+            </tr>
+            <tr>
+                <td style="font-size:2.5vw; width: 15%;color:#5AC8FA;font-weight:bold">标准数量</td>
+                <td style="font-size:2.5vw; width: 25%">@ViewBag.Order.standard_num</td>
+                <td style="font-size:2.5vw; width: 15%;color:#5AC8FA;font-weight:bold">实际数量</td>
+                <td style="font-size:2.5vw; width: 25%">@ViewBag.Order.actual_num</td>
+                <td> <button onclick="Modify(@ViewBag.Order.id,@ViewBag.Order.actual_num)" style="width:80%;font-size:3vw;color:#055473">调整数量</button></td>
+            </tr>
+            <tr>
+                <td style="font-size:2.5vw; width: 15%;color:#5AC8FA;font-weight:bold">实际用时</td>
+                <td style="font-size:2.5vw; width: 25%">@ViewBag.CostTime</td>
+                <td style="font-size:2.5vw; width: 15%;color:#5AC8FA;font-weight:bold">开始时间</td>
+                @if (ViewBag.Order.start_time <= Convert.ToDateTime("2001/1/1 0:00:00"))
+                {
+                    <td>-</td>
+                }
+                else
+                {
+                    <td style="font-size:2.5vw; width: 25%">@ViewBag.Order.start_time.ToString("yy/MM/dd HH:mm:ss")</td>
+                }
+                <td></td>
+            </tr>
+        </table>
+    </div>
+    <!--未执行的工单表格-->
+    <text style="font-size:2.5vw;text-align:center">待执行工单列表</text>
+    <div id="myTable" name="myTable" style="margin-top:0px;margin-bottom:0px;height:20%">
+        <table cellspacing="1" cellpadding="1" id="psTable" name="psTable">
+            <tr class="color">
+                <td style="font-size:2.5vw; width: 10%">序号</td>
+                <td style="font-size:2.5vw; width: 20%">工单</td>
+                <td style="font-size:2.5vw; width: 20%">产品型号</td>
+                <td style="font-size:2.5vw; width: 10%">数量</td>
+                <td style="font-size:2.5vw; width: 20%">创建时间</td>
+                <td style="font-size:2.5vw; width: 20%"></td>
+            </tr>
+            @{
+                int index = 1;
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@index</td>
+                        <td>@item.work_order</td>
+                        <td>@item.part_num</td>
+                        <td>@item.standard_num</td>
+                        <td>@item.insert_time.ToString("yy/MM/dd HH:mm:ss")</td>
+                        @if (ViewBag.SysFlowConfig == (int)FlowModeEnum.Discrete)//配置为离散型的，可每站单独执行开始
+                        {
+                            <td><button onclick="StartProscheduleAlert(@item.id)" style="width:80%;font-size:3vw;color:#055473">开始执行</button></td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+                    </tr>
+                    index++;
+                }
+            }
+        </table>
+    </div>
+</div>
+
+
+
+

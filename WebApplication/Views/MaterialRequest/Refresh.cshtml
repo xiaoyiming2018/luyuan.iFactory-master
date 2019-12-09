@@ -1,0 +1,39 @@
+﻿
+@{
+    Layout = null;
+    @model List<Advantech.IFactory.CommonLibrary.RequestAndInfo>
+    }
+    <div id="myTable" name="myTable">
+        <div style="overflow-x: auto; overflow-y: auto; height: 200px; width:100%;">
+            <table cellspacing="1" cellpadding="1">
+                <tr class="color">
+                    <td style=" width:10%">序号</td>
+                    <td style=" width:10%">站位</td>
+                    <td style=" width:10%">物料编码</td>
+                    <td style=" width:10%">物料名称</td>
+                    <td style=" width:10%">型号规格</td>
+                    <td style=" width:10%">数量</td>
+                    <td style=" width:10%">工单</td>
+                    <td style=" width:10%">呼叫时间</td>
+                </tr>
+
+                @{
+                    int id1 = 1;
+                    foreach (var item1 in Model)
+                    {
+                        <tr>
+                            <td>@id1</td>
+                            <td>@item1.station_name</td>
+                            <td>@item1.material_code</td>
+                            <td>@item1.material_name</td>
+                            <td>@item1.material_type</td>
+                            <td>@item1.request_count</td>
+                            <td>@item1.work_order</td>
+                            <td>@item1.createtime</td>
+                        </tr>
+                        id1++;
+                    }
+                }
+            </table>
+        </div>
+    </div>
