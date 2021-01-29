@@ -21,7 +21,7 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.30" />
     <PackageReference Include="Dapper.Contrib" Version="2.0.30" />
-    <PackageReference Include="log4net" Version="2.0.8" />
+    <PackageReference Include="log4net" Version="2.0.10" />
     <PackageReference Include="MongoDB.Driver" Version="2.8.1" />
     <PackageReference Include="Npgsql" Version="4.0.7" />
     <PackageReference Include="System.Security.Permissions" Version="4.5.0" />
